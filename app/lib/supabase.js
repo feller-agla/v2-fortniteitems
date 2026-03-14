@@ -9,7 +9,13 @@ function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase ENV variables missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY (e.g. in Vercel).')
+    const isVercel = typeof window !== 'undefined' && window.location.hostname?.includes('vercel')
+    throw new Error(
+      'Supabase: variables manquantes. ' +
+      (isVercel
+        ? 'Ajoutez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans Vercel → Settings → Environment Variables, puis redéployez.'
+        : 'Vérifiez que .env.local contient NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY, puis redémarrez "npm run dev".')
+    )
   }
   globalForSupabase.supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
