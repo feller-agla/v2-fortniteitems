@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { 
   ChatBubbleLeftRightIcon, 
   PaperAirplaneIcon, 
@@ -14,7 +14,7 @@ import Navbar from '../components/Navbar';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function UserMessages() {
+function UserMessagesContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -279,5 +279,20 @@ export default function UserMessages() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function UserMessages() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-[#091C3E] text-white">
+        <Navbar />
+        <div className="flex items-center justify-center pt-32">
+          <p className="text-fortnite-yellow font-display animate-pulse tracking-widest">Chargement...</p>
+        </div>
+      </main>
+    }>
+      <UserMessagesContent />
+    </Suspense>
   );
 }

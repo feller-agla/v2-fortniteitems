@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Navbar from "../components/Navbar";
 import ChatWidget from "../components/ChatWidget";
 import { useAuth } from "../context/AuthContext";
@@ -17,7 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function OrdersPage() {
+function OrdersPageContent() {
   const { user, isAuthReady } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -174,6 +174,19 @@ export default function OrdersPage() {
 
       <ChatWidget />
     </main>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-[#091C3E] text-white flex items-center justify-center pt-32">
+        <Navbar />
+        <p className="text-fortnite-yellow font-display animate-pulse tracking-widest">Chargement...</p>
+      </main>
+    }>
+      <OrdersPageContent />
+    </Suspense>
   );
 }
 
