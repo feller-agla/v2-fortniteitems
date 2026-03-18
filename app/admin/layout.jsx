@@ -53,7 +53,7 @@ export default function AdminLayout({ children }) {
             {user ? "Votre compte n'a pas les privilèges administrateur." : "Vous devez être connecté pour accéder à cette zone."}
           </p>
           <div className="space-y-4">
-            <Link href="/login" className="btn-fortnite bg-fortnite-yellow text-fortnite-blue w-full py-3 block text-center">
+            <Link href="/login" prefetch={false} className="btn-fortnite bg-fortnite-yellow text-fortnite-blue w-full py-3 block text-center">
               <span className="btn-fortnite-inner font-bold">SE CONNECTER</span>
             </Link>
             <Link href="/" className="text-white/50 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors block">

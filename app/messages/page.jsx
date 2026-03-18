@@ -15,7 +15,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 function UserMessagesContent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAuthReady } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryOrderId = searchParams.get('orderId');
@@ -48,10 +48,10 @@ function UserMessagesContent() {
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (isAuthReady && !user) {
       router.push('/login');
     }
-  }, [user, authLoading, router]);
+  }, [user, isAuthReady, router]);
 
   // Fetch user's orders
   const fetchUserOrders = async () => {
