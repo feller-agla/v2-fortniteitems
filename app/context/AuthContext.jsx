@@ -83,12 +83,17 @@ export function AuthProvider({ children }) {
             console.log('[AUTH DEBUG] User & Profile synced. (Source:', source, ')');
           }
         } else {
-          // If this is an INITIAL_SESSION with null, we might want to wait for getSession
-          // but usually getSession is called first. 
-          // To be safe, if it's null, we clear.
-          setUser(null);
-          setProfile(null);
-          console.log('[AUTH DEBUG] No session. (Source:', source, ')');
+          // IMPORTANT: a null session can be transient (network hiccup / token refresh race).
+          // Only clear user state on an explicit SIGNED_OUT event.
+          const isExplicitSignOut = source === 'EVENT:SIGNED_OUT';
+          if (isExplicitSignOut) {
+            setUser(null);
+            setProfile(null);
+            console.log('[AUTH DEBUG] Signed out. (Source:', source, ')');
+          } else {
+            // Keep current user/profile to avoid redirect loops.
+            console.log('[AUTH DEBUG] No session (transient). Keeping previous auth state. (Source:', source, ')');
+          }
         }
       } catch (err) {
         console.error('[AUTH DEBUG] Sync error:', err);
