@@ -38,6 +38,15 @@ export const supabase = new Proxy(
   }
 )
 
+/** Client-only: get headers with Bearer token for API routes that need auth. */
+export async function getAuthHeaders() {
+  try {
+    const { data: { session } } = await getSupabaseClient().auth.getSession()
+    if (session?.access_token) return { Authorization: `Bearer ${session.access_token}` }
+  } catch (_) {}
+  return {}
+}
+
 // Server-side only (service role key) - NEVER use in browser
 export const supabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

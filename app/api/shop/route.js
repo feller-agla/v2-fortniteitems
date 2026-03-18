@@ -14,20 +14,54 @@ export async function GET() {
       return NextResponse.json({ ...shopCache, source: 'cache_nextjs' });
     }
 
+    const url = "https://fortnite-api.com/v2/shop?language=fr";
+    const headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      // Some providers block requests without a UA
+      "User-Agent": "FortniteItems/1.0 (Next.js server route)",
+      ...(process.env.FORTNITE_API_KEY ? { "Authorization": process.env.FORTNITE_API_KEY } : {}),
+    };
+
     // Sinon, on requête l'API originale (comme le faisait ton scraper Python)
-    const response = await fetch("https://fortnite-api.com/v2/shop?language=fr", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // L'API key serait à rajouter si le client possède une clé autorisée (API V2)
-        ...(process.env.FORTNITE_API_KEY ? { "Authorization": process.env.FORTNITE_API_KEY } : {})
-      },
-      // Pas de cache à ce niveau pour récupérer des données fraiches si notre TTL est passé
-      cache: "no-store" 
-    });
+    // Note: certains environnements locaux ont un store de certificats incomplet → UNABLE_TO_VERIFY_LEAF_SIGNATURE.
+    let response;
+    try {
+      response = await fetch(url, {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      });
+    } catch (err) {
+      const code = err?.cause?.code || err?.code;
+      const allowInsecure = process.env.SHOP_TLS_INSECURE === 'true';
+      if (allowInsecure && code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
+        // Dev-only workaround for local environments with broken CA store.
+        // Do NOT enable in production.
+        const previous = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        try {
+          response = await fetch(url, {
+            method: "GET",
+            headers,
+            cache: "no-store",
+          });
+        } finally {
+          if (previous === undefined) delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+          else process.env.NODE_TLS_REJECT_UNAUTHORIZED = previous;
+        }
+      } else {
+        throw err;
+      }
+    }
 
     if (!response.ok) {
-      throw new Error(`Fortnite API erreur: ${response.status}`);
+      const raw = await response.text().catch(() => '');
+      const hint =
+        response.status === 403 && !process.env.FORTNITE_API_KEY
+          ? " (403: essaie d'ajouter FORTNITE_API_KEY dans .env.local / Vercel)"
+          : "";
+      throw new Error(`Fortnite API erreur: ${response.status}${hint}${raw ? ` - ${raw.slice(0, 200)}` : ''}`);
     }
 
     const data = await response.json();

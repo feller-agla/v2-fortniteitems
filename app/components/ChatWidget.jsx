@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import { supabase } from '@/app/lib/supabase';
+import { supabase, getAuthHeaders } from '@/app/lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export default function ChatWidget({ orderId }) {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -15,12 +17,20 @@ export default function ChatWidget({ orderId }) {
 
     // Fetch initial messages
     const fetchMessages = async () => {
-      const res = await fetch(`/api/messages?orderId=${orderId}`);
-      const data = await res.json();
-      if (Array.isArray(data)) setMessages(data);
+      try {
+        const headers = await getAuthHeaders();
+        if (!headers?.Authorization) return;
+        const res = await fetch(`/api/messages?orderId=${orderId}`, { headers, cache: 'no-store' });
+        if (res.status === 401) return;
+        const data = await res.json();
+        if (Array.isArray(data)) setMessages(data);
+      } catch (e) {
+        console.warn('[chat widget] fetchMessages failed', e);
+      }
     };
 
     fetchMessages();
+    const poll = setInterval(fetchMessages, 4000);
 
     // Subscribe to real-time updates
     const channel = supabase
@@ -31,11 +41,17 @@ export default function ChatWidget({ orderId }) {
         table: 'messages',
         filter: `order_id=eq.${orderId}`
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new]);
+        setMessages((prev) => {
+          const next = payload.new;
+          if (!next?.id) return prev;
+          if (prev.some((m) => m.id === next.id)) return prev;
+          return [...prev, next];
+        });
       })
       .subscribe();
 
     return () => {
+      clearInterval(poll);
       supabase.removeChannel(channel);
     };
   }, [orderId, isOpen]);
@@ -51,15 +67,50 @@ export default function ChatWidget({ orderId }) {
     if (!inputText.trim()) return;
 
     setLoading(true);
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticText = inputText;
+    setInputText('');
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: optimisticId,
+        order_id: orderId,
+        sender_id: user?.id || null,
+        content: optimisticText,
+        text: optimisticText,
+        is_admin_sender: false,
+        created_at: new Date().toISOString(),
+      },
+    ]);
     try {
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders?.Authorization) throw new Error('Session expirée, reconnectez-vous.');
       const res = await fetch('/api/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, text: inputText, isAdmin: false })
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ orderId, text: optimisticText, isAdmin: false })
       });
-      if (!res.ok) throw new Error("Erreur envoi");
-      setInputText('');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur envoi');
+      setMessages((prev) => {
+        if (data?.id && prev.some((m) => m.id === data.id)) {
+          return prev.filter((m) => m.id !== optimisticId);
+        }
+        return prev.map((m) =>
+          m.id === optimisticId ? { ...data, text: data.content ?? data.text ?? optimisticText } : m
+        );
+      });
+      // Immediate refresh to sync even if realtime is slow
+      try {
+        const headers = await getAuthHeaders();
+        if (headers?.Authorization) {
+          const syncRes = await fetch(`/api/messages?orderId=${orderId}`, { headers, cache: 'no-store' });
+          const syncData = await syncRes.json();
+          if (Array.isArray(syncData)) setMessages(syncData);
+        }
+      } catch {}
     } catch (err) {
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       alert(err.message);
     } finally {
       setLoading(false);
@@ -109,23 +160,26 @@ export default function ChatWidget({ orderId }) {
                 <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Aucun message pour le moment. Des questions sur votre livraison ? Discutons !</p>
               </div>
             )}
-            {messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`flex flex-col ${msg.is_admin_sender ? 'items-start' : 'items-end'}`}
-              >
-                <div className={`max-w-[80%] p-3 rounded-xl text-sm font-bold shadow-md ${
-                  msg.is_admin_sender 
-                    ? 'bg-white/10 text-white border border-white/10' 
-                    : 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none'
-                }`}>
-                  {msg.text}
+            {messages.map((msg) => {
+              const isMine = msg.sender_id && user?.id ? msg.sender_id === user.id : !msg.is_admin_sender;
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                >
+                  <div className={`max-w-[80%] p-3 rounded-xl text-sm font-bold shadow-md ${
+                    isMine
+                      ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none'
+                      : 'bg-white/10 text-white border border-white/10'
+                  }`}>
+                    {msg.text ?? msg.content ?? ''}
+                  </div>
+                  <span className="text-[8px] text-gray-500 mt-1 uppercase">
+                    {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
-                <span className="text-[8px] text-gray-500 mt-1 uppercase">
-                  {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Input Area */}

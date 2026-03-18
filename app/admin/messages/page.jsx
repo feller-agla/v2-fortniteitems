@@ -7,9 +7,11 @@ import {
   ArrowPathIcon,
   ShoppingBagIcon
 } from '@heroicons/react/24/outline';
-import { supabase } from '@/app/lib/supabase';
+import { supabase, getAuthHeaders } from '@/app/lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminMessages() {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -44,7 +46,7 @@ export default function AdminMessages() {
           groups[msg.order_id] = {
             orderId: msg.order_id,
             customerName: msg.orders.customer_data?.name || 'Joueur',
-            lastMessage: msg.text,
+            lastMessage: msg.text ?? msg.content ?? '',
             time: msg.created_at
           };
         }
@@ -64,12 +66,20 @@ export default function AdminMessages() {
     if (!selectedOrderId) return;
     
     const fetchMessages = async () => {
-      const res = await fetch(`/api/messages?orderId=${selectedOrderId}`);
-      const data = await res.json();
-      if (Array.isArray(data)) setMessages(data);
+      try {
+        const headers = await getAuthHeaders();
+        if (!headers?.Authorization) return;
+        const res = await fetch(`/api/messages?orderId=${selectedOrderId}`, { headers, cache: 'no-store' });
+        if (res.status === 401) return;
+        const data = await res.json();
+        if (Array.isArray(data)) setMessages(data);
+      } catch (e) {
+        console.warn('[admin messages] fetchMessages failed', e);
+      }
     };
 
     fetchMessages();
+    const poll = setInterval(fetchMessages, 4000);
 
     const channel = supabase
       .channel(`admin-chat-${selectedOrderId}`)
@@ -79,11 +89,19 @@ export default function AdminMessages() {
         table: 'messages',
         filter: `order_id=eq.${selectedOrderId}`
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new]);
+        setMessages((prev) => {
+          const next = payload.new;
+          if (!next?.id) return prev;
+          if (prev.some((m) => m.id === next.id)) return prev;
+          return [...prev, next];
+        });
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      clearInterval(poll);
+      supabase.removeChannel(channel);
+    };
   }, [selectedOrderId]);
 
   useEffect(() => {
@@ -97,14 +115,51 @@ export default function AdminMessages() {
     if (!inputText.trim() || !selectedOrderId) return;
 
     setLoading(true);
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticText = inputText;
+    setInputText('');
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: optimisticId,
+        order_id: selectedOrderId,
+        sender_id: user?.id || null,
+        content: optimisticText,
+        text: optimisticText,
+        is_admin_sender: true,
+        created_at: new Date().toISOString(),
+      },
+    ]);
     try {
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders?.Authorization) throw new Error('Session expirée, reconnectez-vous.');
       const res = await fetch('/api/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: selectedOrderId, text: inputText, isAdmin: true })
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ orderId: selectedOrderId, text: optimisticText, isAdmin: true })
       });
-      setInputText('');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur envoi');
+      setMessages((prev) => {
+        // If realtime already delivered the same message, drop optimistic
+        if (data?.id && prev.some((m) => m.id === data.id)) {
+          return prev.filter((m) => m.id !== optimisticId);
+        }
+        return prev.map((m) =>
+          m.id === optimisticId ? { ...data, text: data.content ?? data.text ?? optimisticText } : m
+        );
+      });
+      // Immediate refresh to sync both sides even if realtime is slow
+      try {
+        const headers = await getAuthHeaders();
+        if (headers?.Authorization) {
+          const syncRes = await fetch(`/api/messages?orderId=${selectedOrderId}`, { headers, cache: 'no-store' });
+          const syncData = await syncRes.json();
+          if (Array.isArray(syncData)) setMessages(syncData);
+        }
+      } catch {}
     } catch (err) {
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       alert(err.message);
     } finally {
       setLoading(false);
@@ -174,23 +229,26 @@ export default function AdminMessages() {
 
             {/* Chat Messages */}
             <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto space-y-4 relative z-10">
-              {messages.map((msg) => (
-                <div 
-                  key={msg.id} 
-                  className={`flex flex-col ${msg.is_admin_sender ? 'items-end' : 'items-start'}`}
-                >
-                  <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-bold shadow-lg ${
-                    msg.is_admin_sender 
-                      ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none border-b-4 border-fortnite-yellow/50' 
-                      : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
-                  }`}>
-                    {msg.text}
+              {messages.map((msg) => {
+                const isMine = msg.sender_id && user?.id ? msg.sender_id === user.id : !!msg.is_admin_sender;
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                  >
+                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-bold shadow-lg ${
+                      isMine
+                        ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none border-b-4 border-fortnite-yellow/50'
+                        : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                    }`}>
+                      {msg.text ?? msg.content ?? ''}
+                    </div>
+                    <span className="text-[9px] text-gray-500 mt-2 uppercase font-sans">
+                      {new Date(msg.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <span className="text-[9px] text-gray-500 mt-2 uppercase font-sans">
-                    {new Date(msg.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Chat Input */}
