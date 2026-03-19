@@ -19,13 +19,19 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#091C3E]/95 border-b-4 border-fortnite-yellow shadow-[0_10px_30px_rgba(0,0,0,0.8)]" : "bg-gradient-to-b from-[#091C3E] to-transparent"}`}>
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+    <nav className={`fixed inset-x-0 top-0 z-50 box-border transition-all duration-300 ${isScrolled ? "bg-[#091C3E]/95 border-b-4 border-fortnite-yellow shadow-[0_10px_30px_rgba(0,0,0,0.8)]" : "bg-gradient-to-b from-[#091C3E] to-transparent"}`}>
+      <div
+        className="mx-auto flex h-20 max-w-full min-w-0 items-center justify-between gap-2 sm:gap-4 md:px-6 lg:px-8
+          pl-[max(1rem,env(safe-area-inset-left))]
+          pr-[max(1rem,env(safe-area-inset-right))]
+          sm:pl-[max(1.25rem,env(safe-area-inset-left))]
+          sm:pr-[max(1.25rem,env(safe-area-inset-right))]"
+      >
         
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <span className="text-2xl md:text-3xl font-display font-normal text-white tracking-widest leading-none mt-1 text-3d group-hover:text-fortnite-yellow transition-colors">
-            FORTNITE<span className="text-fortnite-yellow group-hover:text-white transition-colors">ITEMS</span>
+        {/* Logo — allow shrink on narrow screens so the right cluster keeps margin */}
+        <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-3">
+          <span className="font-display text-lg font-normal leading-none tracking-wide text-white text-3d transition-colors group-hover:text-fortnite-yellow sm:text-xl sm:tracking-wider md:text-2xl md:tracking-widest lg:text-3xl mt-0.5 sm:mt-1">
+            FORTNITE<span className="text-fortnite-yellow transition-colors group-hover:text-white">ITEMS</span>
           </span>
         </Link>
         
@@ -43,14 +49,14 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3 md:gap-4">
+        {/* Right Actions — flex-shrink-0 keeps avatar + cart inside padded area (no edge clipping) */}
+        <div className="flex flex-shrink-0 items-center gap-3 md:gap-4">
           {/* Cart */}
           <Link
             href="/cart"
-            className="relative p-2 text-white hover:text-fortnite-yellow transition-colors group"
+            className="group relative -mr-0.5 p-1.5 text-white transition-colors hover:text-fortnite-yellow sm:p-2"
           >
-            <ShoppingCartIcon suppressHydrationWarning className="w-8 h-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_15px_rgba(255,241,43,0.8)]" />
+            <ShoppingCartIcon suppressHydrationWarning className="h-7 w-7 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_15px_rgba(255,241,43,0.8)] sm:h-8 sm:w-8" />
             {(totalItems > 0) && (
               <span className="absolute -top-1 -right-1 bg-rarity-marvel text-white text-[12px] font-sans font-bold w-6 h-6 flex items-center justify-center border-2 border-white rounded-full shadow-[0_4px_0_rgba(150,0,0,1)]">
                 {totalItems}
@@ -65,16 +71,20 @@ export default function Navbar() {
             // Logged In: show avatar + dropdown
             <div className="relative flex items-center">
               <button
+                type="button"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border-2 border-white/20 rounded-2xl px-4 py-3 transition-colors"
+                className="flex max-w-[min(148px,calc(100vw-11rem))] items-center gap-1.5 rounded-2xl border-2 border-white/20 bg-white/10 px-2.5 py-2 transition-colors hover:bg-white/20 sm:max-w-[180px] sm:gap-2 sm:px-4 sm:py-3 md:max-w-[220px]"
                 aria-label="User menu"
+                aria-expanded={showUserMenu}
               >
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={displayName} className="w-7 h-7 rounded-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={avatarUrl} alt="" className="h-7 w-7 flex-shrink-0 rounded-full object-cover sm:h-8 sm:w-8" referrerPolicy="no-referrer" />
                 ) : (
-                  <UserCircleIcon className="w-7 h-7 text-fortnite-yellow" />
+                  <UserCircleIcon className="h-7 w-7 flex-shrink-0 text-fortnite-yellow sm:h-8 sm:w-8" />
                 )}
-                <span className="text-white font-bold text-sm sm:text-base tracking-wide max-w-[140px] truncate">{displayName}</span>
+                <span className="min-w-0 flex-1 truncate text-left text-sm font-bold tracking-wide text-white sm:text-base">
+                  {displayName}
+                </span>
               </button>
 
                {showUserMenu && (
