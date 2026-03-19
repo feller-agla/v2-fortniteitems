@@ -83,6 +83,34 @@ export default function CartPage() {
     );
   }
 
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-[#091C3E] text-white selection:bg-fortnite-yellow/30 relative overflow-hidden">
+        <Navbar />
+        <div className="absolute inset-x-0 bottom-0 h-full w-full pointer-events-none opacity-5 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay z-0"></div>
+
+        <section className="pt-32 pb-20 relative z-10 w-full">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <div className="bg-[#051024] border-4 border-[#1A3E7A] rounded-2xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+              <h1 className="text-4xl font-display font-normal text-white mb-4 tracking-wider text-3d">CONNECTEZ-VOUS</h1>
+              <p className="text-gray-300 font-sans text-base leading-relaxed">
+                Pour accéder à votre panier et le retrouver après votre déconnexion, connectez-vous à votre compte.
+              </p>
+              <div className="mt-8 flex gap-4 flex-col sm:flex-row">
+                <Link href="/login" className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full sm:w-auto px-10 py-4 text-center">
+                  <span className="btn-fortnite-inner font-bold">SE CONNECTER</span>
+                </Link>
+                <Link href="/#products" className="btn-fortnite bg-white/5 hover:bg-white/10 text-white w-full sm:w-auto px-10 py-4 text-center border-2 border-white/10">
+                  <span className="btn-fortnite-inner font-bold">CONTINUER</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#091C3E] text-white selection:bg-fortnite-yellow/30 relative overflow-hidden">
       <Navbar />

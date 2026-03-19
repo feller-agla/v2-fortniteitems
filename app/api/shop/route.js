@@ -33,9 +33,20 @@ export async function GET() {
         cache: "no-store",
       });
     } catch (err) {
+      // undici/Node wraps TLS failures in a TypeError("fetch failed")
+      // with the real error in `err.cause`.
       const code = err?.cause?.code || err?.code;
-      const allowInsecure = process.env.SHOP_TLS_INSECURE === 'true';
-      if (allowInsecure && code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
+      const message = String(err?.cause?.message || err?.message || '');
+      const isLeafSignatureError =
+        code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' ||
+        message.toLowerCase().includes('unable to verify the first certificate');
+
+      // Dev workaround: some local/WSL setups have incomplete CA store.
+      // Enable automatically in dev; keep disabled in production.
+      const allowInsecure =
+        process.env.SHOP_TLS_INSECURE === 'true' || process.env.NODE_ENV !== 'production';
+
+      if (allowInsecure && isLeafSignatureError) {
         // Dev-only workaround for local environments with broken CA store.
         // Do NOT enable in production.
         const previous = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
