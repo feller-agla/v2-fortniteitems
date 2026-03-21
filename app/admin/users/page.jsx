@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { formatLocaleDate } from "@/app/lib/datetime";
 import { 
   UsersIcon, 
   TrashIcon, 
@@ -127,7 +128,7 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td className="p-4 text-[#B0B8C8] text-xs">
-                      {new Date(u.created_at).toLocaleDateString('fr-FR')}
+                      {formatLocaleDate(u.created_at)}
                     </td>
                     <td className="p-4 flex gap-2 justify-end">
                       {u.role === 'admin' ? (

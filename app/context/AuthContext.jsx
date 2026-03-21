@@ -107,10 +107,26 @@ export function AuthProvider({ children }) {
     };
 
     // 1. Unified initialization
+    const getSessionWithGrace = async () => {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session?.user) return session;
+        const msg = (error?.message || '').toLowerCase();
+        const rateLimited = error?.status === 429 || msg.includes('rate limit');
+        if (rateLimited && attempt < 3) {
+          console.warn(`[AUTH DEBUG] Session indisponible (rate limit?), nouvel essai ${attempt + 2}/4…`);
+          await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          continue;
+        }
+        return session ?? null;
+      }
+      return null;
+    };
+
     const initializeAuth = async () => {
       try {
-        // First, check the current session
-        const { data: { session } } = await supabase.auth.getSession();
+        // Après paiement / changement d’onglet, un 429 sur /token peut renvoyer null une fois — on réessaie.
+        const session = await getSessionWithGrace();
         await syncAuth(session?.user ?? null, 'INITIAL_GET_SESSION');
 
         // Then, listen for changes

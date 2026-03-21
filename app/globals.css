@@ -30,7 +30,14 @@
   --color-whatsapp-green: #25D366;
 
   --color-background: var(--color-fortnite-blue);
-  --color-foreground: #FFFFFF;
+  /* Texte principal légèrement adouci (moins « lourd » visuellement) */
+  --color-foreground: rgb(255 255 255 / 0.93);
+
+  /* Poids légèrement revus à la baisse pour toute l’app (font-semibold, bold, etc.) */
+  --font-weight-semibold: 560;
+  --font-weight-bold: 640;
+  --font-weight-extrabold: 720;
+  --font-weight-black: 780;
 }
 
 body {
@@ -39,7 +46,7 @@ body {
   font-family: var(--font-sans);
   overflow-x: hidden;
   line-height: 1.5;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 /* Custom Fortnite Utility Classes */
@@ -76,23 +83,19 @@ body {
       inset 0 -2px 5px rgba(0,0,0,0.4);
   }
 
-  /* 3D Text utilities */
+  /* 3D Text utilities — ombres plus légères pour moins fatiguer à la lecture */
   .text-3d {
-    text-shadow: 
-      1px 1px 0 #000,
-      2px 2px 0 #000,
-      3px 3px 0 #000,
-      4px 4px 0 #000,
-      0 10px 20px rgba(0,0,0,0.8);
+    text-shadow:
+      1px 1px 0 rgb(0 0 0 / 0.75),
+      2px 2px 0 rgb(0 0 0 / 0.45),
+      0 6px 14px rgb(0 0 0 / 0.35);
   }
-  
+
   .text-3d-yellow {
-    text-shadow: 
-      1px 1px 0 #b3a000,
-      2px 2px 0 #b3a000,
-      3px 3px 0 #b3a000,
-      4px 4px 0 #b3a000,
-      0 10px 20px rgba(255, 241, 43, 0.4);
+    text-shadow:
+      1px 1px 0 rgb(120 100 0 / 0.7),
+      2px 2px 0 rgb(100 85 0 / 0.4),
+      0 6px 16px rgb(255 230 50 / 0.25);
   }
 
   .glow-blue {

@@ -8,6 +8,8 @@ import {
   ShoppingBagIcon
 } from '@heroicons/react/24/outline';
 import { supabase, getAuthHeaders } from '@/app/lib/supabase';
+import { formatLocaleDate, formatLocaleTime } from '@/app/lib/datetime';
+import { getCustomerDisplayName } from '@/app/lib/customer-display';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminMessages() {
@@ -45,7 +47,7 @@ export default function AdminMessages() {
         if (!groups[msg.order_id]) {
           groups[msg.order_id] = {
             orderId: msg.order_id,
-            customerName: msg.orders.customer_data?.name || 'Joueur',
+            customerName: getCustomerDisplayName(msg.orders?.customer_data),
             lastMessage: msg.text ?? msg.content ?? '',
             time: msg.created_at
           };
@@ -171,16 +173,16 @@ export default function AdminMessages() {
       
       {/* Sidebar: List of Conversations */}
       <div className="w-full md:w-80 bg-[#051024] border-2 border-[#1A3E7A] rounded-2xl flex flex-col overflow-hidden shadow-xl">
-        <div className="p-4 border-b-2 border-white/5 bg-black/40 flex justify-between items-center">
+        <div className="p-4 border-b-2 border-white/10 bg-[#080f20]/90 flex justify-between items-center">
           <h2 className="text-xl font-display tracking-widest text-white">CONVERSATIONS</h2>
-          <button onClick={fetchConversations} className="text-gray-400 hover:text-fortnite-yellow">
+          <button onClick={fetchConversations} className="text-[#9fb0c8] hover:text-fortnite-yellow">
             <ArrowPathIcon className={`w-5 h-5 ${fetchingConvs ? 'animate-spin' : ''}`} />
           </button>
         </div>
         
         <div className="flex-1 overflow-y-auto">
           {conversations.length === 0 && !fetchingConvs ? (
-            <div className="p-8 text-center text-gray-500 text-xs font-bold uppercase tracking-widest">Aucun message reçu</div>
+            <div className="p-8 text-center text-[#aab6ca] text-xs font-semibold uppercase tracking-wide">Aucun message reçu</div>
           ) : (
             conversations.map((conv) => (
               <button
@@ -192,9 +194,9 @@ export default function AdminMessages() {
               >
                 <div className="flex justify-between items-center">
                   <span className="text-white font-bold text-sm">{conv.customerName}</span>
-                  <span className="text-[9px] text-gray-500">{new Date(conv.time).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-[9px] text-[#9fb0c8]">{formatLocaleDate(conv.time)}</span>
                 </div>
-                <p className="text-[11px] text-gray-400 truncate font-sans">{conv.lastMessage}</p>
+                <p className="text-[11px] text-[#c5cdd9] truncate font-sans">{conv.lastMessage}</p>
                 <span className="text-[8px] text-fortnite-yellow font-bold uppercase">CMD: #{conv.orderId.slice(0, 8)}</span>
               </button>
             ))
@@ -204,12 +206,12 @@ export default function AdminMessages() {
 
       {/* Main Chat Area */}
       <div className="flex-1 bg-[#051024] border-2 border-[#1A3E7A] rounded-2xl flex flex-col overflow-hidden shadow-xl relative">
-        <div className="absolute inset-x-0 bottom-0 h-full w-full pointer-events-none opacity-[0.03] bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay"></div>
+        <div className="absolute inset-x-0 bottom-0 h-full w-full pointer-events-none opacity-[0.018] bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay"></div>
         
         {selectedOrderId ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 bg-black/40 border-b-2 border-white/5 flex items-center justify-between relative z-10">
+            <div className="p-4 bg-[#080f20]/90 border-b-2 border-white/10 flex items-center justify-between relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-fortnite-yellow/20 rounded-full flex items-center justify-center">
                   <UserCircleIcon className="w-7 h-7 text-fortnite-yellow" />
@@ -218,7 +220,7 @@ export default function AdminMessages() {
                   <h3 className="text-white font-bold leading-none">
                     {conversations.find(c => c.orderId === selectedOrderId)?.customerName}
                   </h3>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">Chatting about Order #{selectedOrderId.slice(0, 8)}</p>
+                  <p className="text-[10px] text-[#aab6ca] font-semibold uppercase tracking-wide mt-1">Commande #{selectedOrderId.slice(0, 8)}</p>
                 </div>
               </div>
               <a href={`/admin/orders?orderId=${selectedOrderId}`} className="flex items-center gap-2 text-[10px] font-bold text-fortnite-yellow uppercase hover:underline">
@@ -236,15 +238,15 @@ export default function AdminMessages() {
                     key={msg.id}
                     className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                   >
-                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-bold shadow-lg ${
+                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-semibold shadow-lg ${
                       isMine
                         ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none border-b-4 border-fortnite-yellow/50'
-                        : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                        : 'bg-[#1a2f4d]/95 text-[#f0f4fa] border border-white/20 rounded-tl-none'
                     }`}>
                       {msg.text ?? msg.content ?? ''}
                     </div>
-                    <span className="text-[9px] text-gray-500 mt-2 uppercase font-sans">
-                      {new Date(msg.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    <span className="text-[9px] text-[#8ea0b8] mt-2 uppercase font-sans">
+                      {formatLocaleTime(msg.created_at)}
                     </span>
                   </div>
                 );
@@ -252,13 +254,13 @@ export default function AdminMessages() {
             </div>
 
             {/* Chat Input */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-black/60 border-t-2 border-white/10 flex gap-3 relative z-10">
+            <form onSubmit={handleSendMessage} className="p-4 bg-[#080f20]/95 border-t-2 border-white/15 flex gap-3 relative z-10">
               <input 
                 type="text" 
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Tapez votre réponse ici..." 
-                className="flex-1 bg-black/60 border-2 border-white/20 rounded-xl px-6 py-4 text-white text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans"
+                className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-6 py-4 text-[#f0f4fa] placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans"
               />
               <button 
                 disabled={loading || !inputText.trim()}
@@ -271,9 +273,9 @@ export default function AdminMessages() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-            <ChatBubbleLeftRightIcon className="w-20 h-20 text-white/10 mb-6" />
-            <h3 className="text-2xl font-display text-white/20 tracking-[0.2em]">SÉLECTIONNEZ UNE CONVERSATION</h3>
-            <p className="max-w-md text-gray-500 font-bold text-xs uppercase mt-4 leading-loose">
+            <ChatBubbleLeftRightIcon className="w-20 h-20 text-[#4a5c78] mb-6" />
+            <h3 className="text-2xl font-display text-[#dce3ee] tracking-[0.15em]">SÉLECTIONNEZ UNE CONVERSATION</h3>
+            <p className="max-w-md text-[#aab6ca] font-medium text-xs uppercase tracking-wide mt-4 leading-relaxed">
               Cliquez sur un client dans la liste de gauche pour lire les messages et répondre à ses questions.
             </p>
           </div>

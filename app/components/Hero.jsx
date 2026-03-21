@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section id="home" className="relative min-h-[100svh] flex items-center overflow-hidden bg-fortnite-blue pt-16 sm:pt-20">
+    <section id="home" className="relative min-h-[100svh] flex items-center overflow-hidden bg-fortnite-blue pt-16 sm:pt-20 text-white/95">
       {/* Background Elements */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Subtle geometric background instead of bright yellow stripe */}
@@ -43,7 +43,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-[17px] sm:text-lg md:text-xl text-white font-sans font-bold max-w-lg mx-auto lg:mx-0 p-2 sm:p-4 bg-black/40 rounded-xl border border-white/10 shadow-lg backdrop-blur-sm"
+            className="text-[17px] sm:text-lg md:text-xl text-white/90 font-sans font-medium max-w-lg mx-auto lg:mx-0 p-2 sm:p-4 bg-black/35 rounded-xl border border-white/10 shadow-lg backdrop-blur-sm"
           >
             Faites des économies sur vos <strong className="text-fortnite-yellow">V-Bucks</strong>. Livraison automatique 24/7.
           </motion.p>
@@ -78,9 +78,9 @@ export default function Hero() {
           >
             <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-lg border border-white/10">
               <span className="text-fortnite-yellow text-sm sm:text-base">⭐⭐⭐⭐⭐</span>
-              <span className="font-sans font-bold text-white text-xs sm:text-sm tracking-wider uppercase">+10K Clients</span>
+              <span className="font-sans font-medium text-white/90 text-xs sm:text-sm tracking-wide uppercase">+10K Clients</span>
             </div>
-            <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-lg border border-white/10 font-display text-white text-xs sm:text-sm tracking-widest">
+            <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-lg border border-white/10 font-display text-white/90 text-xs sm:text-sm tracking-wide">
               <span className="w-2 h-2 rounded-full bg-[#60C11F] shadow-[0_0_8px_#60C11F]"></span>
               SÉCURISÉ
             </div>

@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { formatLocaleDate } from "@/app/lib/datetime";
+import { getCustomerDisplayName } from "@/app/lib/customer-display";
 import { CheckCircleIcon, XMarkIcon, EyeIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export default function AdminOrders() {
@@ -133,7 +135,7 @@ export default function AdminOrders() {
                     <tr key={order.id} className="hover:bg-white/5 transition-colors group">
                       <td className="p-4 text-white font-display tracking-wider text-xs">{order.id?.slice(0, 8)}...</td>
                       <td className="p-4">
-                        <div className="text-white group-hover:text-fortnite-yellow transition-colors">{order.customer_data?.name || "Anonyme"}</div>
+                        <div className="text-white group-hover:text-fortnite-yellow transition-colors">{getCustomerDisplayName(order.customer_data)}</div>
                         <div className="text-[10px] text-gray-500 font-normal">{order.customer_data?.email || "-"}</div>
                       </td>
                       <td className="p-4 text-fortnite-yellow">{Number(order.amount).toLocaleString("fr-FR")} FCFA</td>
@@ -143,7 +145,7 @@ export default function AdminOrders() {
                         </span>
                       </td>
                       <td className="p-4 text-[#B0B8C8]">
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "-"}
+                        {order.created_at ? formatLocaleDate(order.created_at, { day: "2-digit", month: "short", year: "numeric" }) : "-"}
                       </td>
                       <td className="p-4 flex gap-2 justify-end">
                         {order.status === "pending" && (

@@ -1,5 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { formatLocaleDate } from "@/app/lib/datetime";
+import { getCustomerDisplayName } from "@/app/lib/customer-display";
 import { motion } from "framer-motion";
 import { 
   CurrencyDollarIcon, 
@@ -7,6 +10,24 @@ import {
   UsersIcon, 
   ArrowTrendingUpIcon 
 } from "@heroicons/react/24/outline";
+
+function orderStatusUi(status) {
+  switch (status) {
+    case "pending":
+      return { label: "À confirmer", cls: "bg-fortnite-yellow/20 text-fortnite-yellow border-fortnite-yellow/50" };
+    case "processing":
+      return { label: "En cours", cls: "bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50" };
+    case "shipping":
+      return { label: "Livraison", cls: "bg-blue-500/20 text-blue-400 border-blue-500/50" };
+    case "delivered":
+    case "completed":
+      return { label: "Livrée", cls: "bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/50" };
+    case "cancelled":
+      return { label: "Annulée", cls: "bg-rarity-marvel/20 text-rarity-marvel border-rarity-marvel/50" };
+    default:
+      return { label: status || "—", cls: "bg-white/10 text-white border-white/20" };
+  }
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState([
@@ -39,13 +60,19 @@ export default function AdminDashboard() {
         const ordersRes = await fetch('/api/orders');
         const ordersData = await ordersRes.json();
         if (Array.isArray(ordersData)) {
-          setRecentOrders(ordersData.slice(0, 5).map(o => ({
-            id: `#${o.id.slice(0, 8)}`,
-            customer: o.customer_data?.name || "Joueur",
-            amount: `${o.amount.toLocaleString()} FCFA`,
-            status: o.status === 'pending' ? 'En attente' : 'Complétée',
-            date: new Date(o.created_at).toLocaleDateString('fr-FR')
-          })));
+          setRecentOrders(ordersData.slice(0, 5).map((o) => {
+            const { label, cls } = orderStatusUi(o.status);
+            return {
+              rowKey: o.id,
+              id: `#${o.id.slice(0, 8)}`,
+              customer: getCustomerDisplayName(o.customer_data),
+              customerEmail: typeof o.customer_data?.email === "string" ? o.customer_data.email : "",
+              amount: `${Number(o.amount).toLocaleString("fr-FR")} FCFA`,
+              statusLabel: label,
+              statusCls: cls,
+              date: formatLocaleDate(o.created_at),
+            };
+          }));
         }
       } catch (err) {
         console.error("Dashboard Fetch Error:", err);
@@ -99,7 +126,12 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 bg-[#051024] rounded-2xl border-2 border-[#1A3E7A] shadow-[0_15px_30px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="p-6 border-b-2 border-white/5 flex justify-between items-center bg-black/40">
             <h2 className="text-2xl font-display tracking-widest text-white text-3d">COMMANDES RÉCENTES</h2>
-            <button className="text-xs font-bold text-fortnite-yellow tracking-widest uppercase hover:underline">Voir tout</button>
+            <Link
+              href="/admin/orders"
+              className="text-xs font-bold text-fortnite-yellow tracking-widest uppercase hover:underline"
+            >
+              Voir tout
+            </Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left font-sans text-sm">
@@ -113,18 +145,19 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 font-bold">
-                {recentOrders.map((order, i) => (
-                  <tr key={order.id} className="hover:bg-white/5 transition-colors group">
+                {recentOrders.map((order) => (
+                  <tr key={order.rowKey} className="hover:bg-white/5 transition-colors group">
                     <td className="p-4 text-white">{order.id}</td>
-                    <td className="p-4 text-white group-hover:text-fortnite-yellow transition-colors">{order.customer}</td>
+                    <td className="p-4">
+                      <div className="text-white group-hover:text-fortnite-yellow transition-colors">{order.customer}</div>
+                      {order.customerEmail ? (
+                        <div className="text-[10px] text-gray-500 font-normal">{order.customerEmail}</div>
+                      ) : null}
+                    </td>
                     <td className="p-4 text-fortnite-yellow">{order.amount}</td>
                     <td className="p-4">
-                      <span className={`px-3 py-1 rounded text-[10px] tracking-widest uppercase border ${
-                        order.status === 'En attente' 
-                          ? 'bg-fortnite-yellow/20 text-fortnite-yellow border-fortnite-yellow/50' 
-                          : 'bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/50'
-                      }`}>
-                        {order.status}
+                      <span className={`px-3 py-1 rounded text-[10px] tracking-widest uppercase border ${order.statusCls}`}>
+                        {order.statusLabel}
                       </span>
                     </td>
                     <td className="p-4 text-[#B0B8C8]">{order.date}</td>

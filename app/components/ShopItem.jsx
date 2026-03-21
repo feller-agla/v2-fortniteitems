@@ -59,7 +59,7 @@ export function ShopItem({
           loading="lazy"
         />
         {type && (
-          <span className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-black/60 text-white text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 uppercase tracking-wider z-30 shadow-[0_2px_0_rgba(150,0,0,1)] border border-white/10 rounded backdrop-blur-sm">
+          <span className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-black/55 text-white/95 text-[8px] sm:text-[10px] font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 uppercase tracking-wide z-30 shadow-[0_2px_0_rgba(150,0,0,0.75)] border border-white/10 rounded backdrop-blur-sm">
             {type}
           </span>
         )}
@@ -72,10 +72,10 @@ export function ShopItem({
         <h3 className="text-sm sm:text-lg font-display font-normal text-white mb-1 tracking-wide text-center line-clamp-1 leading-tight text-3d">{name.toUpperCase()}</h3>
         
         <div className="flex flex-col items-center mt-1 w-full relative">
-          <span className="text-[10px] sm:text-xs font-display tracking-widest text-[#B0B8C8] mb-1">
+          <span className="text-[10px] sm:text-xs font-display tracking-wide text-[#B0B8C8]/88 mb-1">
              <span className="drop-shadow-md">💰 {vbucks} </span> <span className="hidden sm:inline">V-BUCKS</span>
           </span>
-          <span className="text-sm sm:text-lg font-bold font-sans text-fortnite-yellow w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.6)] border border-white/5 bg-black/40">
+          <span className="text-sm sm:text-lg font-semibold font-sans text-fortnite-yellow w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] border border-white/5 bg-black/35">
             {price.toLocaleString('fr-FR')} FCFA
           </span>
         </div>
@@ -84,7 +84,7 @@ export function ShopItem({
           onClick={handleAdd}
           className="btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-2 sm:py-2.5 mt-2 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-colors border border-white/20 hover:border-white"
         >
-          <span className="btn-fortnite-inner text-xs sm:text-sm font-bold leading-none mt-1">AJOUTER</span>
+          <span className="btn-fortnite-inner text-xs sm:text-sm font-semibold leading-none mt-1">AJOUTER</span>
         </button>
       </div>
     </motion.div>

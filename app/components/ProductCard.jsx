@@ -35,7 +35,7 @@ export function ProductCard({
       {badge && (
         <div className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 z-30 transform -rotate-3 transition-transform">
           <span className="inline-block bg-rarity-marvel border-2 sm:border-4 border-white text-white px-2 sm:px-4 py-1 sm:py-2 shadow-[0_4px_0_rgba(150,0,0,1)] rounded-lg">
-            <span className="font-display text-[10px] sm:text-sm font-bold tracking-widest leading-none drop-shadow-md">{badge}</span>
+            <span className="font-display text-[10px] sm:text-sm font-semibold tracking-wide leading-none drop-shadow-md">{badge}</span>
           </span>
         </div>
       )}
@@ -67,7 +67,7 @@ export function ProductCard({
             onClick={handleAddToCart}
             className="btn-fortnite bg-white hover:bg-gray-200 text-fortnite-blue w-full py-3 sm:py-4 text-lg sm:text-xl md:text-2xl"
           >
-            <span className="btn-fortnite-inner font-bold leading-none mt-1">ACHETER</span>
+            <span className="btn-fortnite-inner font-semibold leading-none mt-1">ACHETER</span>
           </button>
         </div>
       </div>

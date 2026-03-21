@@ -26,12 +26,16 @@ export function CartProvider({ children }) {
     setIsLoaded(true);
   }, []);
 
-  // Save to LocalStorage when cart changes (guest + mirror for logged users)
+  // Save to LocalStorage when cart changes (only for guests)
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('fortnite_cart', JSON.stringify(cartItems));
+      if (!user?.id) {
+        localStorage.setItem('fortnite_cart', JSON.stringify(cartItems));
+      } else {
+        localStorage.removeItem('fortnite_cart');
+      }
     }
-  }, [cartItems, isLoaded]);
+  }, [cartItems, isLoaded, user?.id]);
 
   const mergeByProductId = (serverItems, localItems) => {
     const map = new Map();

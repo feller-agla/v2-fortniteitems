@@ -7,38 +7,38 @@ export default function Home() {
   const products = [
     {
       id: 4,
-      name: "PACK 13500 V-BUCKS",
+      name: "PACK 12500 V-BUCKS",
       price: 39000,
-      vbucks: 13500,
+      vbucks: 12500,
       image: "/assets/13500vbucks.png",
       badge: "LE PLUS POPULAIRE 🔥",
       isPopular: true
     },
     {
       id: 3,
-      name: "PACK 5000 V-BUCKS",
+      name: "PACK 4500 V-BUCKS",
       price: 17000,
-      vbucks: 5000,
+      vbucks: 4500,
       image: "/assets/5000vbucks.png"
     },
     {
       id: 2,
-      name: "PACK 2800 V-BUCKS",
+      name: "PACK 2400 V-BUCKS",
       price: 9000,
-      vbucks: 2800,
+      vbucks: 2400,
       image: "/assets/2800vbucks.png"
     },
     {
       id: 1,
-      name: "PACK 1000 V-BUCKS",
+      name: "PACK 800 V-BUCKS",
       price: 4000,
-      vbucks: 1000,
+      vbucks: 800,
       image: "/assets/1000vbucks.png"
     }
   ];
 
   return (
-    <main className="min-h-screen bg-[#091C3E] text-white selection:bg-fortnite-yellow/30 font-sans relative overflow-hidden">
+    <main className="min-h-screen bg-[#091C3E] text-white/95 selection:bg-fortnite-yellow/30 font-sans relative overflow-hidden">
       
       {/* Texture globale rayée */}
       <div className="absolute inset-0 pointer-events-none opacity-5 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay z-0"></div>
@@ -59,7 +59,7 @@ export default function Home() {
             <h3 className="text-4xl sm:text-5xl md:text-7xl font-display font-normal text-white mb-4 tracking-wider text-3d relative">
               PACKS <span className="text-fortnite-yellow text-3d-yellow relative z-10">DISPONIBLES</span>
             </h3>
-            <p className="text-gray-300 font-sans text-base sm:text-xl max-w-2xl mx-auto font-bold tracking-wide">
+            <p className="text-gray-300/90 font-sans text-base sm:text-xl max-w-2xl mx-auto font-medium tracking-wide">
               SÉCURISEZ VOS V-BUCKS AU MEILLEUR PRIX. LIVRAISON INSTANTANÉE SUR VOTRE COMPTE.
             </p>
           </div>

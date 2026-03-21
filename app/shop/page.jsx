@@ -13,13 +13,6 @@ export default function ShopPage() {
   const [filterType, setFilterType] = useState("ALL");
   const [filterRarity, setFilterRarity] = useState("ALL");
   
-  // Rate fixe des V-Bucks en FCFA par 100 unités + 1000 FCFA forfait
-  const vbuckToFcfaRaw = (vbucks) => (vbucks / 100) * 550 + 1000;
-  const vbuckToFcfaRounded = (vbucks) => {
-    const raw = vbuckToFcfaRaw(vbucks);
-    return Math.ceil(raw / 100) * 100;
-  };
-
   useEffect(() => {
     const fetchShop = async () => {
       try {
@@ -33,7 +26,7 @@ export default function ShopPage() {
         const formattedItems = items.map(item => ({
           id: item.id || `shop-${Math.random()}`,
           name: item.name || "Objet Inconnu",
-          price: vbuckToFcfaRounded(item.vbucks || 0),
+          price: item.price || 0,
           vbucks: item.vbucks || 0,
           image: item.image || "/assets/1000vbucks.png",
           type: item.type || "Cosmetic",
@@ -64,7 +57,7 @@ export default function ShopPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#091C3E] text-white selection:bg-fortnite-yellow/30 relative overflow-hidden">
+    <main className="min-h-screen bg-[#091C3E] text-white/95 selection:bg-fortnite-yellow/30 relative overflow-hidden">
       <Navbar />
       
       {/* Texture de fond rayée style menu Fortnite */}
@@ -88,7 +81,7 @@ export default function ShopPage() {
                 JOUR
               </span>
             </h2>
-            <p className="text-white font-sans text-base sm:text-xl max-w-3xl mx-auto font-black tracking-widest uppercase bg-black/40 p-3 sm:p-4 rounded-xl border border-white/10 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
+            <p className="text-white/88 font-sans text-base sm:text-xl max-w-3xl mx-auto font-semibold tracking-wide uppercase bg-black/35 p-3 sm:p-4 rounded-xl border border-white/10 shadow-[0_5px_15px_rgba(0,0,0,0.45)]">
               RETROUVEZ TOUS LES SKINS, PIOCHES ET ÉMOTES ACTUELLEMENT DISPONIBLES DANS FORTNITE.
             </p>
           </div>

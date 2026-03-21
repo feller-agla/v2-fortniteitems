@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/app/lib/supabase';
 import { v4 as uuidv4 } from 'uuid'; // Fallback for uuid generation
+import {
+  buildCheckoutInvoiceBody,
+  createPaydunyaCheckoutInvoice,
+} from '@/app/lib/paydunya';
+
+function usePaydunya() {
+  const p = (process.env.PAYMENT_PROVIDER || '').toLowerCase().trim();
+  return p === 'paydunya' || p === 'paydunya_only';
+}
 
 export async function POST(request) {
   try {
@@ -11,13 +20,68 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Montant et articles requis' }, { status: 400 });
     }
 
-    // 1. Initialiser le paiement Lygos
     const orderId = crypto.randomUUID ? crypto.randomUUID() : uuidv4();
-    const itemsSummary = items.map(item => item.name).join(', ');
+    const baseUrl =
+      request.headers.get('origin') ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      'http://localhost:3000';
+    const itemsSummary = items.map((item) => item.name).join(', ');
     const message = `Commande FortniteItems - ${itemsSummary}`;
-    
-    // Remplacer par l'URL Vercel une fois en ligne
-    const baseUrl = request.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+    // ——— PayDunya (test / prod selon PAYDUNYA_SANDBOX et NODE_ENV) ———
+    if (usePaydunya()) {
+      try {
+        const invoiceBody = buildCheckoutInvoiceBody({
+          totalAmount: parseInt(amount, 10),
+          description: message,
+          items,
+          customer,
+          orderId,
+          baseUrl,
+        });
+
+        const pd = await createPaydunyaCheckoutInvoice(invoiceBody);
+        if (!pd.ok) {
+          console.error('[PayDunya]', pd.error, pd.raw);
+          return NextResponse.json(
+            { success: false, error: pd.error || 'Erreur PayDunya' },
+            { status: 400 }
+          );
+        }
+
+        const { error: dbError } = await supabase.from('orders').insert([
+          {
+            id: orderId,
+            amount: parseInt(amount, 10),
+            status: 'pending',
+            customer_data: customer || {},
+            items_data: items,
+            lygos_link: pd.paymentUrl,
+          },
+        ]);
+
+        if (dbError) {
+          console.error('Supabase Error (PayDunya):', dbError);
+          return NextResponse.json({ success: false, error: 'Erreur sauvegarde BDD' }, { status: 500 });
+        }
+
+        return NextResponse.json({
+          success: true,
+          payment_link: pd.paymentUrl,
+          order_id: orderId,
+          provider: 'paydunya',
+          paydunya_token: pd.token,
+        });
+      } catch (e) {
+        console.error('[PayDunya] config / appel:', e);
+        return NextResponse.json(
+          { success: false, error: e.message || 'PayDunya indisponible' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // 1. Initialiser le paiement Lygos
     const successUrl = `${baseUrl}/orders?status=success&order_id=${orderId}`;
     const failureUrl = `${baseUrl}/cart?status=failed&order_id=${orderId}`;
 

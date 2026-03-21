@@ -98,10 +98,10 @@ export default function CartPage() {
               </p>
               <div className="mt-8 flex gap-4 flex-col sm:flex-row">
                 <Link href="/login" className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full sm:w-auto px-10 py-4 text-center">
-                  <span className="btn-fortnite-inner font-bold">SE CONNECTER</span>
+                  <span className="btn-fortnite-inner font-semibold">SE CONNECTER</span>
                 </Link>
                 <Link href="/#products" className="btn-fortnite bg-white/5 hover:bg-white/10 text-white w-full sm:w-auto px-10 py-4 text-center border-2 border-white/10">
-                  <span className="btn-fortnite-inner font-bold">CONTINUER</span>
+                  <span className="btn-fortnite-inner font-semibold">CONTINUER</span>
                 </Link>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function CartPage() {
                 PANIER
               </span>
             </h1>
-            <p className="text-white font-sans text-xl font-black tracking-widest uppercase bg-black/40 p-4 rounded-xl border-2 border-white/10 mt-4 md:max-w-2xl">
+            <p className="text-white/88 font-sans text-xl font-semibold tracking-wide uppercase bg-black/35 p-4 rounded-xl border-2 border-white/10 mt-4 md:max-w-2xl">
               VÉRIFIEZ VOS ARTICLES AVANT DE PROCÉDER AU{" "}
               <span className="text-fortnite-yellow">PAIEMENT SÉCURISÉ</span>.
             </p>
@@ -140,12 +140,12 @@ export default function CartPage() {
               <div className="w-32 h-32 bg-black/60 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-white/10">
                 <TrashIcon className="w-16 h-16 text-gray-500" />
               </div>
-              <h2 className="text-4xl font-display tracking-wide mb-6 text-gray-400">PANIER VIDE</h2>
-              <p className="text-white font-sans text-xl font-bold mb-10 max-w-lg mx-auto">
+              <h2 className="text-4xl font-display tracking-wide mb-6 text-gray-400/85">PANIER VIDE</h2>
+              <p className="text-white/90 font-sans text-xl font-medium mb-10 max-w-lg mx-auto">
                 VOUS N'AVEZ PAS ENCORE SÉLECTIONNÉ D'ARTICLES.
               </p>
               <Link href="/#products" className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue px-12 py-5 text-2xl inline-block">
-                <span className="btn-fortnite-inner font-bold leading-none mt-1">VOIR LES OFFRES</span>
+                <span className="btn-fortnite-inner font-semibold leading-none mt-1">VOIR LES OFFRES</span>
               </Link>
             </div>
           ) : (
@@ -164,14 +164,14 @@ export default function CartPage() {
                       <div className="text-sm text-fortnite-yellow font-display tracking-widest mb-1">{item.vbucks ? `💰 ${item.vbucks} V-BUCKS` : "💎 OBJET FORTNITE"}</div>
                       <h3 className="text-3xl font-display tracking-wide text-white mb-3 text-3d leading-none">{item.name.toUpperCase()}</h3>
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-                        <div className="text-2xl font-bold font-sans text-fortnite-yellow bg-black/60 px-4 py-2 rounded-lg border border-white/5 inline-block">
+                        <div className="text-2xl font-semibold font-sans text-fortnite-yellow bg-black/50 px-4 py-2 rounded-lg border border-white/5 inline-block">
                           {item.price.toLocaleString("fr-FR")} FCFA
                         </div>
                         <div className="flex items-center gap-1 bg-black/80 rounded-xl p-1 border-2 border-[#1A3E7A]">
                           <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="p-3 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light disabled:opacity-30 active:border-b-0 active:translate-y-[4px] text-white">
                             <MinusIcon className="w-5 h-5" />
                           </button>
-                          <span className="font-bold font-display text-3xl w-12 text-center text-white pt-1">{item.quantity}</span>
+                          <span className="font-semibold font-display text-3xl w-12 text-center text-white/95 pt-1">{item.quantity}</span>
                           <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-3 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light active:border-b-0 active:translate-y-[4px] text-white">
                             <PlusIcon className="w-5 h-5" />
                           </button>
@@ -192,12 +192,12 @@ export default function CartPage() {
                 <div className="bg-[#051024] border-4 border-[#1A3E7A] rounded-2xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] sticky top-32 overflow-hidden">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-fortnite-yellow/10 blur-[50px] rounded-full pointer-events-none mix-blend-screen z-0"></div>
                   <h3 className="text-4xl font-display tracking-wider mb-8 border-b-4 border-[#1A3E7A] pb-4 text-white text-3d relative z-10">RÉSUMÉ</h3>
-                  <div className="space-y-4 mb-8 font-sans text-xl font-bold relative z-10">
-                    <div className="flex justify-between text-gray-300 bg-black/40 p-3 rounded-lg border border-white/5">
+                  <div className="space-y-4 mb-8 font-sans text-lg font-semibold relative z-10">
+                    <div className="flex justify-between text-gray-300/90 bg-black/35 p-3 rounded-lg border border-white/5">
                       <span>Articles ({cartItems.length})</span>
                       <span className="text-white">{cartTotal.toLocaleString("fr-FR")} FCFA</span>
                     </div>
-                    <div className="flex justify-between text-gray-300 bg-black/40 p-3 rounded-lg border border-white/5">
+                    <div className="flex justify-between text-gray-300/90 bg-black/35 p-3 rounded-lg border border-white/5">
                       <span>Frais</span>
                       <span className="text-fortnite-yellow uppercase tracking-widest bg-[#1A3E7A]/50 px-2 rounded">Gratuit</span>
                     </div>
@@ -215,11 +215,11 @@ export default function CartPage() {
                       onClick={handleCheckout}
                       className="btn-fortnite w-full bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue py-5 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all"
                     >
-                      <span className="btn-fortnite-inner font-bold text-2xl tracking-widest mt-1">COMMANDER →</span>
+                      <span className="btn-fortnite-inner font-semibold text-2xl tracking-wide mt-1">COMMANDER →</span>
                     </button>
                   </div>
                   <div className="mt-6 flex flex-col items-center gap-2 relative z-10 opacity-70">
-                    <p className="text-center text-xs text-white font-bold font-sans uppercase tracking-widest">PAIEMENT SÉCURISÉ PAR</p>
+                    <p className="text-center text-xs text-white/85 font-medium font-sans uppercase tracking-wide">PAIEMENT SÉCURISÉ PAR</p>
                     <div className="flex gap-2 items-center justify-center font-display text-sm">
                       <span className="bg-[#00B0FF] px-2 rounded text-white">WAVE</span>
                       <span className="bg-[#FF6600] px-2 rounded text-white">ORANGE</span>
@@ -267,13 +267,13 @@ export default function CartPage() {
                 <>
                   <div className="mb-8 relative z-10">
                     <h2 className="text-4xl font-display text-white text-3d tracking-widest">INFOS COMMANDE</h2>
-                    <p className="text-gray-400 font-bold text-sm uppercase tracking-widest mt-1">
+                    <p className="text-gray-400/88 font-semibold text-sm uppercase tracking-wide mt-1">
                       ON A BESOIN DE CES INFOS POUR LIVRER TES ARTICLES
                     </p>
                   </div>
 
                   {formError && (
-                    <div className="bg-rarity-marvel/20 border border-rarity-marvel/50 rounded-xl p-3 mb-4 text-red-300 font-bold text-sm relative z-10">
+                    <div className="bg-rarity-marvel/20 border border-rarity-marvel/50 rounded-xl p-3 mb-4 text-red-300/95 font-medium text-sm relative z-10">
                       ⚠️ {formError}
                     </div>
                   )}
@@ -281,42 +281,42 @@ export default function CartPage() {
                   <form onSubmit={handleSubmitOrder} className="space-y-4 relative z-10">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white font-bold text-xs mb-1.5 uppercase tracking-widest">PRÉNOM</label>
+                        <label className="block text-white/95 font-semibold text-xs mb-1.5 uppercase tracking-wide">PRÉNOM</label>
                         <input
                           type="text" required value={form.firstName}
                           onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold focus:border-fortnite-yellow focus:outline-none transition-colors"
+                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                           placeholder="Jean"
                         />
                       </div>
                       <div>
-                        <label className="block text-white font-bold text-xs mb-1.5 uppercase tracking-widest">NOM</label>
+                        <label className="block text-white/95 font-semibold text-xs mb-1.5 uppercase tracking-wide">NOM</label>
                         <input
                           type="text" required value={form.lastName}
                           onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold focus:border-fortnite-yellow focus:outline-none transition-colors"
+                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                           placeholder="Dupont"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-white font-bold text-xs mb-1.5 uppercase tracking-widest">
+                      <label className="block text-white/95 font-semibold text-xs mb-1.5 uppercase tracking-wide">
                         🎮 NOM D'UTILISATEUR EPIC GAMES
                       </label>
                       <input
                         type="text" required value={form.epicUsername}
                         onChange={(e) => setForm({ ...form, epicUsername: e.target.value })}
-                        className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold focus:border-fortnite-yellow focus:outline-none transition-colors"
+                        className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                         placeholder="TonPseudoFortnite"
                       />
-                      <p className="text-gray-500 text-xs mt-1 font-bold">
+                      <p className="text-gray-500/85 text-xs mt-1 font-medium">
                         ⚠️ Vérifie bien l'orthographe — c'est là qu'on envoie les V-Bucks !
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-white font-bold text-xs mb-1.5 uppercase tracking-widest">
+                      <label className="block text-white/95 font-semibold text-xs mb-1.5 uppercase tracking-wide">
                         📱 TON APPAREIL
                       </label>
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -324,7 +324,7 @@ export default function CartPage() {
                           <button
                             key={d} type="button"
                             onClick={() => setForm({ ...form, device: d })}
-                            className={`py-2 px-1 rounded-xl font-bold text-sm border-2 transition-all ${
+                            className={`py-2 px-1 rounded-xl font-medium text-sm border-2 transition-all ${
                               form.device === d
                                 ? "bg-fortnite-yellow text-fortnite-blue border-fortnite-yellow shadow-[0_4px_0_rgba(180,160,0,1)]"
                                 : "bg-black/40 text-gray-300 border-white/10 hover:border-fortnite-yellow/50"
@@ -338,7 +338,7 @@ export default function CartPage() {
 
                     {/* Summary */}
                     <div className="bg-black/60 rounded-xl p-4 border border-white/5 mt-2">
-                      <div className="flex justify-between text-sm font-bold">
+                      <div className="flex justify-between text-sm font-medium">
                         <span className="text-gray-400">{cartItems.length} article(s)</span>
                         <span className="text-fortnite-yellow text-lg">{cartTotal.toLocaleString("fr-FR")} FCFA</span>
                       </div>
@@ -348,7 +348,7 @@ export default function CartPage() {
                       type="submit"
                       className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-4 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-2"
                     >
-                      <span className="btn-fortnite-inner font-bold text-xl tracking-widest mt-1">
+                      <span className="btn-fortnite-inner font-semibold text-xl tracking-wide mt-1">
                         PROCÉDER AU PAIEMENT →
                       </span>
                     </button>
@@ -361,7 +361,7 @@ export default function CartPage() {
                   <div className="text-5xl font-display text-fortnite-yellow animate-pulse tracking-widest mb-4">
                     CHARGEMENT...
                   </div>
-                  <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">
+                  <p className="text-gray-400/88 font-semibold text-sm uppercase tracking-wide">
                     Création de ta commande en cours...
                   </p>
                 </div>
@@ -371,12 +371,12 @@ export default function CartPage() {
                 <div className="py-12 text-center relative z-10">
                   <div className="text-5xl mb-4">❌</div>
                   <h3 className="text-3xl font-display text-white text-3d mb-3">ERREUR</h3>
-                  <p className="text-red-300 font-bold mb-8">{formError}</p>
+                  <p className="text-red-300/95 font-medium mb-8">{formError}</p>
                   <button
                     onClick={() => setStep("form")}
                     className="btn-fortnite bg-fortnite-yellow text-fortnite-blue px-8 py-3"
                   >
-                    <span className="btn-fortnite-inner font-bold">RÉESSAYER</span>
+                    <span className="btn-fortnite-inner font-semibold">RÉESSAYER</span>
                   </button>
                 </div>
               )}

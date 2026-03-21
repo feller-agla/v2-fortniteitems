@@ -82,7 +82,7 @@ export default function Navbar() {
                 ) : (
                   <UserCircleIcon className="h-7 w-7 flex-shrink-0 text-fortnite-yellow sm:h-8 sm:w-8" />
                 )}
-                <span className="min-w-0 flex-1 truncate text-left text-sm font-bold tracking-wide text-white sm:text-base">
+                <span className="min-w-0 flex-1 truncate text-left text-sm font-medium tracking-wide text-white/95 sm:text-base">
                   {displayName}
                 </span>
               </button>

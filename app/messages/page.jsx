@@ -9,6 +9,7 @@ import {
   InboxIcon
 } from '@heroicons/react/24/outline';
 import { supabase, getAuthHeaders } from '@/app/lib/supabase';
+import { formatLocaleDate, formatLocaleTime } from '@/app/lib/datetime';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -210,18 +211,18 @@ function UserMessagesContent() {
           
           {/* Sidebar: List of Orders */}
           <div className="w-full md:w-80 bg-[#051024] border-2 border-[#1A3E7A] rounded-2xl flex flex-col overflow-hidden shadow-xl">
-            <div className="p-4 border-b-2 border-white/5 bg-black/40 flex justify-between items-center">
+            <div className="p-4 border-b-2 border-white/10 bg-[#080f20]/90 flex justify-between items-center">
               <h2 className="text-xl font-display tracking-widest text-white">VOS COMMANDES</h2>
-              <button onClick={fetchUserOrders} className="text-gray-400 hover:text-fortnite-yellow">
+              <button onClick={fetchUserOrders} className="text-[#9fb0c8] hover:text-fortnite-yellow">
                 <ArrowPathIcon className={`w-5 h-5 ${fetchingOrders ? 'animate-spin' : ''}`} />
               </button>
             </div>
             
             <div className="flex-1 overflow-y-auto">
               {fetchingOrders ? (
-                <div className="p-8 text-center text-fortnite-yellow animate-pulse font-bold text-xs uppercase tracking-widest">Chargement...</div>
+                <div className="p-8 text-center text-fortnite-yellow animate-pulse font-semibold text-xs uppercase tracking-wide">Chargement...</div>
               ) : orders.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 text-xs font-bold uppercase tracking-widest">Aucune commande trouvée</div>
+                <div className="p-8 text-center text-[#aab6ca] text-xs font-semibold uppercase tracking-wide">Aucune commande trouvée</div>
               ) : (
                 orders.map((order) => (
                   <button
@@ -233,9 +234,9 @@ function UserMessagesContent() {
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-white font-bold text-sm">Commande #{order.id.slice(0, 8)}</span>
-                      <span className="text-[9px] text-gray-500">{new Date(order.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span className="text-[9px] text-[#9fb0c8]">{formatLocaleDate(order.created_at)}</span>
                     </div>
-                    <p className="text-[11px] text-gray-400 font-sans truncate">
+                    <p className="text-[11px] text-[#c5cdd9] font-sans truncate">
                       {order.items_data?.map(i => i.name).join(', ') || 'Articles'}
                     </p>
                     <span className={`text-[8px] font-bold uppercase ${
@@ -253,19 +254,19 @@ function UserMessagesContent() {
 
           {/* Main Chat Area */}
           <div className="flex-1 bg-[#051024] border-2 border-[#1A3E7A] rounded-2xl flex flex-col overflow-hidden shadow-xl relative">
-            <div className="absolute inset-x-0 bottom-0 h-full w-full pointer-events-none opacity-[0.03] bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay"></div>
+            <div className="absolute inset-x-0 bottom-0 h-full w-full pointer-events-none opacity-[0.018] bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay"></div>
             
             {selectedOrderId ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 bg-black/40 border-b-2 border-white/5 flex items-center justify-between relative z-10">
+                <div className="p-4 bg-[#080f20]/90 border-b-2 border-white/10 flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-fortnite-yellow/20 rounded-full flex items-center justify-center border-2 border-fortnite-yellow/20">
                       <ChatBubbleLeftRightIcon className="w-6 h-6 text-fortnite-yellow" />
                     </div>
                     <div>
                       <h3 className="text-white font-bold leading-none">Support FortniteItems</h3>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">Chat en direct • Commande #{selectedOrderId.slice(0, 8)}</p>
+                      <p className="text-[10px] text-[#aab6ca] font-semibold uppercase tracking-wide mt-1">Chat en direct • Commande #{selectedOrderId.slice(0, 8)}</p>
                     </div>
                   </div>
                   <Link href={`/orders?order_id=${selectedOrderId}`} className="flex items-center gap-2 text-[10px] font-bold text-fortnite-yellow uppercase hover:underline">
@@ -277,9 +278,9 @@ function UserMessagesContent() {
                 {/* Chat Messages */}
                 <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto space-y-4 relative z-10">
                   {messages.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full opacity-30">
-                      <InboxIcon className="w-12 h-12 mb-2" />
-                      <p className="text-xs font-bold uppercase tracking-widest">Aucun message</p>
+                    <div className="flex flex-col items-center justify-center h-full text-[#9fb0c8]">
+                      <InboxIcon className="w-12 h-12 mb-2 text-[#6b7c96]" />
+                      <p className="text-xs font-semibold uppercase tracking-wide">Aucun message</p>
                     </div>
                   )}
                   {messages.map((msg) => {
@@ -289,15 +290,15 @@ function UserMessagesContent() {
                         key={msg.id}
                         className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                       >
-                        <div className={`max-w-[75%] p-4 rounded-2xl text-sm font-bold shadow-lg ${
+                        <div className={`max-w-[75%] p-4 rounded-2xl text-sm font-semibold shadow-lg ${
                           isMine
                             ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none border-b-4 border-fortnite-yellow/50'
-                            : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                            : 'bg-[#1a2f4d]/95 text-[#f0f4fa] border border-white/20 rounded-tl-none'
                         }`}>
                           {msg.text ?? msg.content ?? ''}
                         </div>
-                        <span className="text-[9px] text-gray-500 mt-2 uppercase font-sans">
-                          {isMine ? 'Vous' : 'Admin'} • {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        <span className="text-[9px] text-[#8ea0b8] mt-2 uppercase font-sans">
+                          {isMine ? 'Vous' : 'Admin'} • {formatLocaleTime(msg.created_at)}
                         </span>
                       </div>
                     );
@@ -305,15 +306,15 @@ function UserMessagesContent() {
                 </div>
 
                 {/* Chat Input */}
-                <form onSubmit={handleSendMessage} className="p-4 bg-black/60 border-t-2 border-white/10 flex gap-3 relative z-10">
+                <form onSubmit={handleSendMessage} className="p-4 bg-[#080f20]/95 border-t-2 border-white/15 flex gap-3 relative z-10">
                   <input 
                     type="text" 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Posez votre question à l'admin..." 
-                    className="flex-1 bg-black/60 border-2 border-white/20 rounded-xl px-6 py-4 text-white text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans"
+                    placeholder="Posez votre question au support..." 
+                    className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-6 py-4 text-[#f0f4fa] placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans"
                   />
-                  <button 
+                  <button
                     disabled={loading || !inputText.trim()}
                     className="px-6 bg-fortnite-yellow rounded-xl text-fortnite-blue font-bold flex items-center justify-center gap-2 group disabled:opacity-50 transition-all hover:scale-105"
                   >
@@ -323,9 +324,9 @@ function UserMessagesContent() {
               </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-                <InboxIcon className="w-20 h-20 text-white/10 mb-6" />
-                <h3 className="text-2xl font-display text-white/20 tracking-[0.2em]">SÉLECTIONNEZ UNE COMMANDE</h3>
-                <p className="max-w-md text-gray-500 font-bold text-xs uppercase mt-4 leading-loose">
+                <InboxIcon className="w-20 h-20 text-[#4a5c78] mb-6" />
+                <h3 className="text-2xl font-display text-[#dce3ee] tracking-[0.15em]">SÉLECTIONNEZ UNE COMMANDE</h3>
+                <p className="max-w-md text-[#aab6ca] font-medium text-xs uppercase tracking-wide mt-4 leading-relaxed">
                   Choisissez une commande dans la liste pour discuter avec un administrateur en direct de votre livraison.
                 </p>
               </div>

@@ -4,7 +4,10 @@ import Navbar from "../components/Navbar";
 import ChatWidget from "../components/ChatWidget";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "@/app/lib/supabase";
+import { formatLocaleDate, formatLocaleDateTime } from "@/app/lib/datetime";
+import { getCustomerSearchBlob } from "@/app/lib/customer-display";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCart } from "@/app/context/CartContext";
 import { 
   ChevronDownIcon, 
   MagnifyingGlassIcon, 
@@ -19,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 function OrdersPageContent() {
   const { user, isAuthReady } = useAuth();
+  const { clearCart, isLoaded: isCartLoaded } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -78,6 +82,13 @@ function OrdersPageContent() {
     }
   }, [user?.id, searchParams]);
 
+  // Clear Cart on successful payment redirect
+  useEffect(() => {
+    if (isCartLoaded && searchParams.get('status') === 'success') {
+      clearCart();
+    }
+  }, [searchParams, isCartLoaded]); // Removed clearCart from deps for safety
+
   // Filter orders based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -86,7 +97,7 @@ function OrdersPageContent() {
       const query = searchQuery.toLowerCase();
       const filtered = orders.filter(o => 
         o.id.toLowerCase().includes(query) || 
-        (o.customer_data?.name && o.customer_data.name.toLowerCase().includes(query)) ||
+        getCustomerSearchBlob(o.customer_data).includes(query) ||
         o.status.toLowerCase().includes(query)
       );
       setFilteredOrders(filtered);
@@ -124,7 +135,7 @@ function OrdersPageContent() {
         <div className="container mx-auto px-4 z-10 relative max-w-5xl">
           
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-display font-black text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white/95 mb-4">
               MES <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-purple-500 uppercase">Commandes</span>
             </h1>
             <p className="text-gray-400 font-sans text-lg max-w-2xl mx-auto">
@@ -211,8 +222,8 @@ function OrderAccordionItem({ order, isExpanded, onToggle, getStatusInfo }) {
               <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">ID:</span>
               <span className="font-display font-bold text-white tracking-widest">#{order.id.slice(0, 8).toUpperCase()}</span>
             </div>
-            <div className="text-[10px] text-gray-500 font-bold uppercase mt-0.5">
-              {new Date(order.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            <div className="text-[10px] text-gray-400 font-bold uppercase mt-1">
+              {formatLocaleDateTime(order.created_at, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
         </div>
@@ -220,10 +231,10 @@ function OrderAccordionItem({ order, isExpanded, onToggle, getStatusInfo }) {
         <div className="flex items-center justify-between md:justify-end gap-6 flex-1 w-full md:w-auto">
           <div className="text-right hidden sm:block">
             <div className="text-xs font-bold text-gray-500 uppercase">Montant</div>
-            <div className="text-lg font-black text-white">{Number(order.amount).toLocaleString('fr-FR')} FCFA</div>
+            <div className="text-lg font-bold text-white/95">{Number(order.amount).toLocaleString('fr-FR')} FCFA</div>
           </div>
 
-          <div className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border}`}>
+          <div className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide border ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border}`}>
             {statusInfo.icon}
             {statusInfo.label}
           </div>
@@ -247,16 +258,16 @@ function OrderAccordionItem({ order, isExpanded, onToggle, getStatusInfo }) {
                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                  {/* Timeline Section */}
                  <div className="lg:col-span-2">
-                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-8 flex items-center gap-2">
+                    <h4 className="text-xs font-semibold text-gray-400/85 uppercase tracking-wide mb-8 flex items-center gap-2">
                         <ArrowPathIcon className="w-4 h-4" /> État de la livraison
                     </h4>
-                    <OrderTimeline status={order.status} />
+                    <OrderTimeline order={order} />
                  </div>
 
                  {/* Actions & Summary Section */}
                  <div className="space-y-6">
                     <div className="bg-white/5 border border-white/5 rounded-2xl p-6">
-                        <h4 className="text-xs font-black text-white uppercase tracking-widest mb-4">Résumé des articles</h4>
+                        <h4 className="text-xs font-semibold text-white/90 uppercase tracking-wide mb-4">Résumé des articles</h4>
                         <div className="space-y-3">
                             {order.items_data?.map((item, idx) => (
                                 <div key={idx} className="flex justify-between items-center text-sm font-bold">
@@ -265,8 +276,8 @@ function OrderAccordionItem({ order, isExpanded, onToggle, getStatusInfo }) {
                                 </div>
                             ))}
                             <div className="pt-3 border-t border-white/10 flex justify-between items-center">
-                                <span className="text-xs font-black uppercase text-white">Total</span>
-                                <span className="text-lg font-black text-electric-blue">{Number(order.amount).toLocaleString('fr-FR')} FCFA</span>
+                                <span className="text-xs font-semibold uppercase text-white/90">Total</span>
+                                <span className="text-lg font-bold text-electric-blue">{Number(order.amount).toLocaleString('fr-FR')} FCFA</span>
                             </div>
                         </div>
                     </div>
@@ -295,7 +306,9 @@ function OrderAccordionItem({ order, isExpanded, onToggle, getStatusInfo }) {
   );
 }
 
-function OrderTimeline({ status }) {
+function OrderTimeline({ order }) {
+  const status = order?.status || 'pending';
+
   const steps = [
     { id: 'pending', label: 'Paiement', icon: '💳', desc: 'En attente / Reçu' },
     { id: 'processing', label: 'Préparation', icon: '⚙️', desc: 'Accès au compte' },
@@ -305,6 +318,12 @@ function OrderTimeline({ status }) {
 
   const currentStepIndex = steps.findIndex(s => s.id === status);
   const activeIndex = status === 'cancelled' ? -1 : (currentStepIndex === -1 && status === 'delivered' ? 3 : currentStepIndex);
+
+  const getStepDate = (idx) => {
+    const rawDate = (idx === 0 ? order.created_at : (order.updated_at || order.created_at));
+    if (!rawDate) return '';
+    return formatLocaleDateTime(rawDate, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="relative">
@@ -324,6 +343,9 @@ function OrderTimeline({ status }) {
                       <div className={`transition-all duration-500 ${isCompleted ? 'opacity-100' : 'opacity-20'}`}>
                           <h5 className="font-display font-bold text-white text-sm uppercase">{step.label}</h5>
                           <p className="text-[10px] text-gray-500 mt-0.5">{step.desc}</p>
+                          <p className="text-[10px] text-electric-blue mt-1 font-bold tracking-wide">
+                            {isCompleted ? getStepDate(idx) : ""}
+                          </p>
                       </div>
                   )}
               </div>
@@ -337,15 +359,17 @@ function OrderTimeline({ status }) {
                 <span className={`text-xl ${isActive ? 'animate-pulse' : ''}`}>{step.icon}</span>
               </div>
 
-              {/* Desktop Right Spacer / Mobile Content */}
+              {/* Mobile Content (Hidden on Desktop logic handled by CSS) */}
               <div className="md:w-[40%] text-left md:pl-6 self-center">
                   <div className={`transition-all duration-500 md:block ${isCompleted ? 'opacity-100' : 'opacity-20'}`}>
-                      {(idx % 2 !== 0 || typeof window !== 'undefined' && window.innerWidth < 768) && (
-                          <>
-                              <h5 className="font-display font-bold text-white text-sm uppercase">{step.label}</h5>
-                              <p className="text-[10px] text-gray-500 mt-0.5">{step.desc}</p>
-                          </>
-                      )}
+                      {/* On mobile, ALWAYS show this content right next to the icon. On desktop, only show it for ODD index steps. */}
+                      <div className={idx % 2 === 0 ? "block md:hidden" : "block"}>
+                          <h5 className="font-display font-bold text-white text-sm uppercase">{step.label}</h5>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{step.desc}</p>
+                          <p className="text-[10px] text-electric-blue mt-1 font-bold tracking-wide">
+                            {isCompleted ? getStepDate(idx) : ""}
+                          </p>
+                      </div>
                   </div>
               </div>
             </div>

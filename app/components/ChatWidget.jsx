@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { supabase, getAuthHeaders } from '@/app/lib/supabase';
+import { formatLocaleTime } from '@/app/lib/datetime';
 import { useAuth } from '../context/AuthContext';
 
 export default function ChatWidget({ orderId }) {
@@ -142,7 +143,7 @@ export default function ChatWidget({ orderId }) {
           <div className="bg-[#091C3E] p-4 border-b-2 border-white/10 flex items-center justify-between">
             <div>
               <h3 className="text-fortnite-yellow font-display text-lg tracking-widest text-3d-yellow">MESSAGERIE</h3>
-              <p className="text-[10px] text-gray-400 font-bold uppercase">Commande: #{orderId.slice(0, 8)}</p>
+              <p className="text-[10px] text-[#aab6ca] font-semibold uppercase tracking-wide">Commande: #{orderId.slice(0, 8)}</p>
             </div>
             <div className="flex gap-2">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -153,11 +154,11 @@ export default function ChatWidget({ orderId }) {
           {/* Messages Area */}
           <div 
             ref={scrollRef}
-            className="flex-1 p-4 overflow-y-auto space-y-4 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.02)_10px,rgba(255,255,255,0.02)_20px)]"
+            className="flex-1 p-4 overflow-y-auto space-y-4 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.04)_10px,rgba(255,255,255,0.04)_20px)]"
           >
             {messages.length === 0 && (
               <div className="text-center py-10">
-                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Aucun message pour le moment. Des questions sur votre livraison ? Discutons !</p>
+                <p className="text-[#aab6ca] text-xs font-medium uppercase tracking-wide leading-relaxed px-2">Aucun message pour le moment. Des questions sur votre livraison ? Discutons !</p>
               </div>
             )}
             {messages.map((msg) => {
@@ -167,15 +168,15 @@ export default function ChatWidget({ orderId }) {
                   key={msg.id}
                   className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                 >
-                  <div className={`max-w-[80%] p-3 rounded-xl text-sm font-bold shadow-md ${
+                  <div className={`max-w-[80%] p-3 rounded-xl text-sm font-semibold shadow-md ${
                     isMine
                       ? 'bg-fortnite-yellow text-fortnite-blue rounded-tr-none'
-                      : 'bg-white/10 text-white border border-white/10'
+                      : 'bg-[#1a2f4d]/95 text-[#f0f4fa] border border-white/20'
                   }`}>
                     {msg.text ?? msg.content ?? ''}
                   </div>
-                  <span className="text-[8px] text-gray-500 mt-1 uppercase">
-                    {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  <span className="text-[8px] text-[#8ea0b8] mt-1 uppercase">
+                    {formatLocaleTime(msg.created_at)}
                   </span>
                 </div>
               );
@@ -183,13 +184,13 @@ export default function ChatWidget({ orderId }) {
           </div>
 
           {/* Input Area */}
-          <form onSubmit={handleSendMessage} className="p-4 bg-black/40 border-t-2 border-white/10 flex gap-2">
+          <form onSubmit={handleSendMessage} className="p-4 bg-[#080f20]/95 border-t-2 border-white/15 flex gap-2">
             <input 
               type="text" 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Écrivez votre message..." 
-              className="flex-1 bg-black/60 border-2 border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:border-fortnite-yellow focus:outline-none transition-colors"
+              className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-4 py-2 text-[#f0f4fa] placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-colors"
             />
             <button 
               disabled={loading}
