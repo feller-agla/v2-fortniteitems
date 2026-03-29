@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { NextResponse } from 'next/server';
 
 // Variables globales de cache très basiques pour le serveur Next.js
@@ -17,14 +19,14 @@ export async function GET() {
       
       // Étape 1 : Coût unitaire = 0,0038608€ par V-Bucks.
       // Étape 2 : Diviser par 0.72 pour appliquer 28% de marge de vente. Résultat = Prix de vente en Dollar.
-      const priceDollar = (vbucks * 0.0038608) * 1.5;
+      const priceDollar = (vbucks * 5) + 500;
       
       // Étape 3 : Convertir en FCFA (Taux fixe de l'Dollar ≈ 610)
       const tauxDollarFCFA = 610; 
-      let priceFCFA = priceDollar * tauxDollarFCFA;
+      let priceFCFA = (vbucks * 5.5);
       
       // Étape 4 : Arrondi par palier de 50 au supérieur (ex: 2246 -> 2250, 2253 -> 2300)
-      priceFCFA = Math.ceil(priceFCFA / 200) * 200;
+      priceFCFA = Math.ceil(priceFCFA / 500) * 500;
       
       // Étape 5 : Marges fixes (+1000 pour Skins, +500 pour Emotes)
       const t = (type || '').toLowerCase();

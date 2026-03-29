@@ -215,6 +215,15 @@ export function AuthProvider({ children }) {
     window.location.href = '/';
   };
 
+  const verifyEmailOtp = async (email, token) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'signup'
+    });
+    return { data, error };
+  };
+
   const isAdmin = profile?.role === 'admin';
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Joueur';
@@ -231,6 +240,7 @@ export function AuthProvider({ children }) {
       signInWithEmail,
       signUp,
       signOut,
+      verifyEmailOtp,
       isAdmin,
     }}>
       {children}

@@ -14,7 +14,8 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
+  const [otpCode, setOtpCode] = useState("");
+  const { signUp, signInWithGoogle, user, loading: authLoading, verifyEmailOtp } = useAuth();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -41,6 +42,20 @@ export default function RegisterPage() {
       setError(error.message);
     } else {
       setSuccess(true);
+      setError("");
+    }
+    setLoading(false);
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { error } = await verifyEmailOtp(email, otpCode);
+    if (error) {
+      setError("Code incorrect ou expiré : " + error.message);
+    } else {
+      router.push("/");
     }
     setLoading(false);
   };
@@ -72,15 +87,34 @@ export default function RegisterPage() {
           </div>
 
           {success ? (
-            <div className="bg-rarity-uncommon/20 border-2 border-rarity-uncommon/60 rounded-xl p-6 text-center">
-              <div className="text-4xl mb-3">📧</div>
-              <h3 className="font-display text-2xl text-white mb-2">VÉRIFIE TON EMAIL !</h3>
-              <p className="text-gray-300 font-sans font-bold text-sm">
-                On a envoyé un lien de confirmation à <span className="text-fortnite-yellow">{email}</span>.<br/>Clique dessus pour activer ton compte.
+            <div className="relative z-10 w-full text-center mt-6">
+              <div className="text-5xl mb-4 animate-bounce">📧</div>
+              <h3 className="font-display text-3xl text-white mb-2">VÉRIFICATION</h3>
+              <p className="text-gray-400 font-sans font-medium text-sm mb-8 text-center px-4">
+                On a envoyé un code secret à <span className="text-fortnite-yellow font-bold">{email}</span>.<br />
+                Rentre ce code ci-dessous pour valider ton compte.
               </p>
-              <Link href="/login" className="mt-4 btn-fortnite bg-fortnite-yellow text-fortnite-blue px-8 py-3 inline-block">
-                <span className="btn-fortnite-inner font-bold">SE CONNECTER</span>
-              </Link>
+              
+              <form onSubmit={handleVerifyOtp} className="space-y-6 text-left">
+                <div>
+                   <label className="block text-white font-sans font-bold text-[11px] mb-2 uppercase tracking-widest text-center text-gray-500">CODE À 6 CHIFFRES</label>
+                   <input type="text" maxLength="6" required value={otpCode} onChange={(e) => setOtpCode(e.target.value)}
+                    className="w-full bg-black/80 border-2 border-white/20 rounded-2xl px-4 py-5 text-center text-white font-display text-3xl tracking-[0.5em] focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner placeholder-gray-700" placeholder="123456" />
+                </div>
+                
+                {error && (
+                  <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-sm text-red-300 font-bold text-center">
+                    {error}
+                  </div>
+                )}
+                
+                <button type="submit" disabled={loading}
+                  className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-5 text-2xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50 uppercase tracking-widest font-display">
+                  <span className="btn-fortnite-inner flex items-center justify-center font-bold">
+                    {loading ? "VÉRIFICATION..." : "VALIDER LE CODE"}
+                  </span>
+                </button>
+              </form>
             </div>
           ) : (
             <>

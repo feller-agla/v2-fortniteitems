@@ -49,3 +49,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 1800 = 475TRY ... 1800 = 22,49$
 4000 = 770TRY ... 4000 = 36,49$
 
+Comme je ne veux pas que Epic me colle au cul je veux changer et le nom de mon site ainsi que le logo desormais le nouveau nom de mon site c'est: LamaShop

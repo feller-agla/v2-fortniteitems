@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase';
 import { verifyPaydunyaHash } from '@/app/lib/paydunya';

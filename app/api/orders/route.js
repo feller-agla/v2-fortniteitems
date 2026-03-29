@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { NextResponse } from 'next/server';
 import { supabase } from '@/app/lib/supabase';
 import { v4 as uuidv4 } from 'uuid'; // Fallback for uuid generation
