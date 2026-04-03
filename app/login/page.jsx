@@ -92,7 +92,7 @@ export default function LoginPage() {
               <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">ADRESSE E-MAIL</label>
               <input 
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
+                className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
                 placeholder="joueur@epicgames.com"
               />
             </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
               <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">MOT DE PASSE</label>
               <input 
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
+                className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
                 placeholder="••••••••"
               />
               <div className="flex justify-end mt-2">

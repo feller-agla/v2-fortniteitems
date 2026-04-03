@@ -110,7 +110,7 @@ export default function ShopPage() {
                     placeholder="RECHERCHER UN OBJET..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-black/40 border-2 border-white/10 rounded-lg py-3 pl-10 pr-4 text-white font-sans font-bold tracking-wide placeholder-gray-500 focus:outline-none focus:border-fortnite-yellow transition-colors"
+                    className="w-full bg-black/40 border-2 border-white/10 rounded-lg py-3 pl-10 pr-4 text-white/90 font-sans font-medium tracking-wide placeholder-gray-500 focus:outline-none focus:border-fortnite-yellow transition-colors"
                   />
                 </div>
                 

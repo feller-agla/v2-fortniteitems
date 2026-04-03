@@ -43,7 +43,7 @@ export default function AdminProducts() {
             <input 
               type="text" 
               placeholder="Rechercher..." 
-              className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-2 text-white font-sans focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
+              className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-2 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors shadow-inner"
             />
           </div>
         </div>

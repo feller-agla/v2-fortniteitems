@@ -151,7 +151,7 @@ function OrdersPageContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Chercher par ID, status ou article..." 
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-6 py-4 text-white font-sans focus:outline-none focus:border-electric-blue transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-6 py-4 text-white/90 font-sans font-medium focus:outline-none focus:border-electric-blue transition-colors"
               />
             </div>
           </div>

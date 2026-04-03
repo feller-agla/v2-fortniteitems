@@ -312,7 +312,7 @@ function UserMessagesContent() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Posez votre question au support..." 
-                    className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-6 py-4 text-[#f0f4fa] placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans"
+                    className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-6 py-4 text-[#f0f4fa]/90 placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner font-sans font-medium"
                   />
                   <button
                     disabled={loading || !inputText.trim()}

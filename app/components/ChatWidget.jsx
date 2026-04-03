@@ -190,7 +190,7 @@ export default function ChatWidget({ orderId }) {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Écrivez votre message..." 
-              className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-4 py-2 text-[#f0f4fa] placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-colors"
+              className="flex-1 bg-[#0c1628] border-2 border-white/25 rounded-xl px-4 py-2 text-[#f0f4fa]/90 placeholder:text-[#6a7d95] text-sm focus:border-fortnite-yellow focus:outline-none transition-colors font-medium"
             />
             <button 
               disabled={loading}

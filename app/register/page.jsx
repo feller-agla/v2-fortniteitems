@@ -98,8 +98,8 @@ export default function RegisterPage() {
               <form onSubmit={handleVerifyOtp} className="space-y-6 text-left">
                 <div>
                    <label className="block text-white font-sans font-bold text-[11px] mb-2 uppercase tracking-widest text-center text-gray-500">CODE À 6 CHIFFRES</label>
-                   <input type="text" maxLength="6" required value={otpCode} onChange={(e) => setOtpCode(e.target.value)}
-                    className="w-full bg-black/80 border-2 border-white/20 rounded-2xl px-4 py-5 text-center text-white font-display text-3xl tracking-[0.5em] focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner placeholder-gray-700" placeholder="123456" />
+                   <input type="text" maxLength="6" required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full bg-[#0c1628] border-2 border-white/20 rounded-xl px-4 py-4 text-white/90 text-center text-2xl font-sans font-medium tracking-[0.5em] focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner placeholder:text-gray-700" placeholder="000000" />
                 </div>
                 
                 {error && (
@@ -145,22 +145,22 @@ export default function RegisterPage() {
                 <div>
                   <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">TON PSEUDO</label>
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="Ninja" />
+                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="Ninja" />
                 </div>
                 <div>
                   <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">ADRESSE E-MAIL</label>
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="joueur@epicgames.com" />
+                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="joueur@epicgames.com" />
                 </div>
                 <div>
                   <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">MOT DE PASSE</label>
                   <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="••••••••" />
+                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="••••••••" />
                 </div>
                 <div>
                   <label className="block text-white font-sans font-bold text-sm mb-2 uppercase tracking-wider">RÉPÉTER LE MOT DE PASSE</label>
                   <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-sans font-bold focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="••••••••" />
+                    className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="••••••••" />
                 </div>
                 <button type="submit" disabled={loading}
                   className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-4 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50">

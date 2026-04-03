@@ -285,7 +285,7 @@ export default function CartPage() {
                         <input
                           type="text" required value={form.firstName}
                           onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
+                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                           placeholder="Jean"
                         />
                       </div>
@@ -294,7 +294,7 @@ export default function CartPage() {
                         <input
                           type="text" required value={form.lastName}
                           onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
+                          className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                           placeholder="Dupont"
                         />
                       </div>
@@ -307,7 +307,7 @@ export default function CartPage() {
                       <input
                         type="text" required value={form.epicUsername}
                         onChange={(e) => setForm({ ...form, epicUsername: e.target.value })}
-                        className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
+                        className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
                         placeholder="Ton pseudo Fortnite"
                       />
                       <p className="text-gray-500/85 text-xs mt-1 font-medium">
