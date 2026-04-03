@@ -308,7 +308,7 @@ export default function CartPage() {
                         type="text" required value={form.epicUsername}
                         onChange={(e) => setForm({ ...form, epicUsername: e.target.value })}
                         className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/95 font-medium focus:border-fortnite-yellow focus:outline-none transition-colors"
-                        placeholder="TonPseudoFortnite"
+                        placeholder="Ton pseudo Fortnite"
                       />
                       <p className="text-gray-500/85 text-xs mt-1 font-medium">
                         ⚠️ Vérifie bien l'orthographe — c'est là qu'on envoie les V-Bucks !
