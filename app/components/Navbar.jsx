@@ -35,7 +35,7 @@ export default function Navbar() {
           <img 
             src="/assets/LamaShop-removebg-preview.png" 
             alt="LamaShop Logo" 
-            className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,241,43,0.3)]"
+            className="h-14 sm:h-16 md:h-18 lg:h-20 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,241,43,0.3)]"
           />
         </Link>
         

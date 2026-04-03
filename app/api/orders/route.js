@@ -4,7 +4,6 @@ export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
 import { supabase } from '@/app/lib/supabase';
-import { v4 as uuidv4 } from 'uuid'; // Fallback for uuid generation
 import {
   buildCheckoutInvoiceBody,
   createPaydunyaCheckoutInvoice,
@@ -24,7 +23,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Montant et articles requis' }, { status: 400 });
     }
 
-    const orderId = crypto.randomUUID ? crypto.randomUUID() : uuidv4();
+    const orderId = crypto.randomUUID();
     const baseUrl =
       request.headers.get('origin') ||
       process.env.NEXT_PUBLIC_BASE_URL ||
