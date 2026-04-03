@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { ShopItem } from "../components/ShopItem";
 
 export default function ShopPage() {
@@ -12,7 +13,23 @@ export default function ShopPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("ALL");
   const [filterRarity, setFilterRarity] = useState("ALL");
+  const [filterVBucks, setFilterVBucks] = useState("ALL");
   
+  const VBUCK_RANGES = [
+    { label: "TOUS LES PRIX", value: "ALL" },
+    { label: "0 - 500 V-BUCKS", value: "0-500" },
+    { label: "501 - 1000 V-BUCKS", value: "501-1000" },
+    { label: "1001 - 2000 V-BUCKS", value: "1001-2000" },
+    { label: "2001+ V-BUCKS", value: "2001-99999" }
+  ];
+
+  // Logic to check if item is in range
+  const isInVBucksRange = (vbucks, range) => {
+    if (range === "ALL") return true;
+    const [min, max] = range.split("-").map(Number);
+    return vbucks >= min && vbucks <= max;
+  };
+
   useEffect(() => {
     const fetchShop = async () => {
       try {
@@ -27,6 +44,7 @@ export default function ShopPage() {
           id: item.id || `shop-${Math.random()}`,
           name: item.name || "Objet Inconnu",
           price: item.price || 0,
+          full_price: item.full_price || (item.price * 1.5),
           vbucks: item.vbucks || 0,
           image: item.image || "/assets/1000vbucks.png",
           type: item.type || "Cosmetic",
@@ -53,7 +71,8 @@ export default function ShopPage() {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "ALL" || item.type === filterType;
     const matchesRarity = filterRarity === "ALL" || item.rarity === filterRarity;
-    return matchesSearch && matchesType && matchesRarity;
+    const matchesVBucks = isInVBucksRange(item.vbucks, filterVBucks);
+    return matchesSearch && matchesType && matchesRarity && matchesVBucks;
   });
 
   return (
@@ -102,8 +121,9 @@ export default function ShopPage() {
           ) : (
             <>
               {/* Filtres */}
-              <div className="bg-[#0c1a3b]/80 backdrop-blur-md border-2 border-white/10 rounded-xl p-4 sm:p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between shadow-[0_10px_20px_rgba(0,0,0,0.4)] max-w-[1800px] mx-auto">
-                <div className="w-full md:w-1/3 relative">
+              <div className="bg-[#0c1a3b]/80 backdrop-blur-md border-2 border-white/10 rounded-xl p-4 sm:p-6 mb-8 flex flex-col items-stretch shadow-[0_10px_20px_rgba(0,0,0,0.4)] max-w-[1800px] mx-auto gap-6">
+                {/* Ligne de recherche */}
+                <div className="w-full relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
                   <input 
                     type="text" 
@@ -114,11 +134,12 @@ export default function ShopPage() {
                   />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                {/* Ligne des menus déroulants */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
                   <select 
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="bg-black/40 border-2 border-white/10 rounded-lg py-3 px-4 text-white font-sans font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow cursor-pointer appearance-none"
+                    className="w-full bg-black/40 border-2 border-white/10 rounded-lg py-3 px-4 text-white font-sans font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow cursor-pointer appearance-none text-xs sm:text-sm lg:text-base"
                   >
                     {types.map(t => (
                       <option key={t} value={t} className="bg-[#0c1a3b]">{t === "ALL" ? "TOUS LES TYPES" : t.toUpperCase()}</option>
@@ -126,9 +147,19 @@ export default function ShopPage() {
                   </select>
 
                   <select 
+                    value={filterVBucks}
+                    onChange={(e) => setFilterVBucks(e.target.value)}
+                    className="w-full bg-black/40 border-2 border-white/10 rounded-lg py-3 px-4 text-white font-sans font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow cursor-pointer appearance-none text-xs sm:text-sm lg:text-base"
+                  >
+                    {VBUCK_RANGES.map(range => (
+                      <option key={range.value} value={range.value} className="bg-[#0c1a3b]">{range.label}</option>
+                    ))}
+                  </select>
+
+                  <select 
                     value={filterRarity}
                     onChange={(e) => setFilterRarity(e.target.value)}
-                    className="bg-black/40 border-2 border-white/10 rounded-lg py-3 px-4 text-white font-sans font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow cursor-pointer appearance-none"
+                    className="w-full bg-black/40 border-2 border-white/10 rounded-lg py-3 px-4 text-white font-sans font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow cursor-pointer appearance-none text-xs sm:text-sm lg:text-base"
                   >
                     {rarities.map(r => (
                       <option key={r} value={r} className="bg-[#0c1a3b]">{r === "ALL" ? "TOUTES LES RARETÉS" : r.toUpperCase()}</option>
@@ -151,6 +182,7 @@ export default function ShopPage() {
                       name={item.name}
                       vbucks={item.vbucks}
                       price={item.price}
+                      full_price={item.full_price}
                       image={item.image}
                       type={item.type}
                       rarity={item.rarity}
@@ -163,6 +195,8 @@ export default function ShopPage() {
 
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }

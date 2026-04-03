@@ -31,10 +31,12 @@ export default function Navbar() {
       >
         
         {/* Logo — allow shrink on narrow screens so the right cluster keeps margin */}
-        <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-3">
-          <span className="font-display text-lg font-normal leading-none tracking-wide text-white text-3d transition-colors group-hover:text-fortnite-yellow sm:text-xl sm:tracking-wider md:text-2xl md:tracking-widest lg:text-3xl mt-0.5 sm:mt-1">
-            LAMA<span className="text-fortnite-yellow transition-colors group-hover:text-white">SHOP</span>
-          </span>
+        <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-3 transition-transform hover:scale-105 active:scale-95">
+          <img 
+            src="/assets/LamaShop-removebg-preview.png" 
+            alt="LamaShop Logo" 
+            className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,241,43,0.3)]"
+          />
         </Link>
         
         {/* Desktop Links */}

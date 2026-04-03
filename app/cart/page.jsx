@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import Link from "next/link";
 import { TrashIcon, PlusIcon, MinusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,8 +11,28 @@ import { motion, AnimatePresence } from "framer-motion";
 const DEVICES = ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"];
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, cartTotal, isLoaded } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, cartTotal, cartSaving, isDiscounted, promoCode, setPromoCode, isLoaded } = useCart();
   const { user, displayName } = useAuth();
+  
+  const [promoInput, setPromoInput] = useState(promoCode || "");
+  const [promoStatus, setPromoStatus] = useState(isDiscounted ? "success" : ""); // "" | "success" | "error"
+
+  const handleApplyPromo = () => {
+    if (!promoInput.trim()) return;
+    setPromoCode(promoInput.toUpperCase());
+    // The context will update isDiscounted. We can check it in next render or just show feedback.
+    // For immediate feedback, we'll wait for the context to sync.
+  };
+
+  // Sync internal status with context
+  useEffect(() => {
+    if (promoCode) {
+      if (isDiscounted) setPromoStatus("success");
+      else setPromoStatus("error");
+    } else {
+      setPromoStatus("");
+    }
+  }, [promoCode, isDiscounted]);
 
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState("form"); // "form" | "loading" | "error"
@@ -164,8 +185,15 @@ export default function CartPage() {
                       <div className="text-sm text-fortnite-yellow font-display tracking-widest mb-1">{item.vbucks ? `💰 ${item.vbucks} V-BUCKS` : "💎 OBJET FORTNITE"}</div>
                       <h3 className="text-3xl font-display tracking-wide text-white mb-3 text-3d leading-none">{item.name.toUpperCase()}</h3>
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-                        <div className="text-2xl font-semibold font-sans text-fortnite-yellow bg-black/50 px-4 py-2 rounded-lg border border-white/5 inline-block">
-                          {item.price.toLocaleString("fr-FR")} FCFA
+                        <div className="flex flex-col items-center sm:items-start gap-1">
+                          {isDiscounted && (
+                            <span className="text-xs text-rarity-marvel font-bold line-through opacity-70">
+                              {(item.full_price || item.price * 1.5).toLocaleString("fr-FR")} FCFA
+                            </span>
+                          )}
+                          <div className="text-2xl font-semibold font-sans text-fortnite-yellow bg-black/50 px-4 py-2 rounded-lg border border-white/5 inline-block">
+                            {(isDiscounted ? item.price : (item.full_price || item.price * 1.5)).toLocaleString("fr-FR")} FCFA
+                          </div>
                         </div>
                         <div className="flex items-center gap-1 bg-black/80 rounded-xl p-1 border-2 border-[#1A3E7A]">
                           <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="p-2 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light disabled:opacity-30 active:border-b-0 active:translate-y-[4px] text-white">
@@ -195,12 +223,43 @@ export default function CartPage() {
                   <div className="space-y-4 mb-8 font-sans text-lg font-semibold relative z-10">
                     <div className="flex justify-between text-gray-300/90 bg-black/35 p-3 rounded-lg border border-white/5">
                       <span>Articles ({cartItems.length})</span>
-                      <span className="text-white">{cartTotal.toLocaleString("fr-FR")} FCFA</span>
+                      <span className="text-white">{(cartTotal + cartSaving).toLocaleString("fr-FR")} FCFA</span>
                     </div>
+                    {isDiscounted && (
+                      <div className="flex justify-between text-[#F1F12B] bg-fortnite-yellow/10 p-3 rounded-lg border border-fortnite-yellow/20 animate-in zoom-in duration-300">
+                        <span className="font-bold">Réduction Partenaire</span>
+                        <span className="font-black">- {cartSaving.toLocaleString("fr-FR")} FCFA</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-gray-300/90 bg-black/35 p-3 rounded-lg border border-white/5">
                       <span>Frais</span>
                       <span className="text-fortnite-yellow uppercase tracking-widest bg-[#1A3E7A]/50 px-2 rounded">Gratuit</span>
                     </div>
+                  </div>
+
+                  {/* Promo Code Input */}
+                  <div className="mb-8 relative z-10">
+                    <label className="block text-[10px] font-black text-[#B0B8C8] uppercase tracking-widest mb-2">CODE DE REDUCTION</label>
+                    <div className="flex gap-2">
+                       <input 
+                        type="text" 
+                        value={promoInput}
+                        onChange={(e) => setPromoInput(e.target.value)}
+                        placeholder="EX: LAMA"
+                        className={`flex-1 bg-black/40 border-2 rounded-xl px-4 py-2 text-white font-bold uppercase tracking-widest focus:outline-none transition-colors ${
+                          promoStatus === 'success' ? 'border-fortnite-yellow' : 
+                          promoStatus === 'error' ? 'border-rarity-marvel' : 'border-white/10'
+                        }`}
+                       />
+                       <button 
+                        onClick={handleApplyPromo}
+                        className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95"
+                       >
+                         OK
+                       </button>
+                    </div>
+                    {promoStatus === 'error' && <p className="text-[10px] text-rarity-marvel font-bold mt-1 uppercase tracking-wider">CODE INVALIDE</p>}
+                    {promoStatus === 'success' && <p className="text-[10px] text-fortnite-yellow font-bold mt-1 uppercase tracking-wider">CODE DE REDUCTION APPLIQUÉ ! ✨</p>}
                   </div>
                   <div className="border-t-4 border-[#1A3E7A] pt-8 mb-8 relative z-10">
                     <div className="flex justify-between items-center bg-black/60 p-4 rounded-xl border-2 border-white/5">
@@ -338,9 +397,19 @@ export default function CartPage() {
 
                     {/* Summary */}
                     <div className="bg-black/60 rounded-xl p-4 border border-white/5 mt-2">
-                      <div className="flex justify-between text-sm font-medium">
+                      <div className="flex justify-between text-sm font-medium mb-1">
                         <span className="text-gray-400">{cartItems.length} article(s)</span>
-                        <span className="text-fortnite-yellow text-lg">{cartTotal.toLocaleString("fr-FR")} FCFA</span>
+                        <span className={`text-white ${isDiscounted ? 'line-through opacity-50' : ''}`}>{(cartTotal + cartSaving).toLocaleString("fr-FR")} FCFA</span>
+                      </div>
+                      {isDiscounted && (
+                        <div className="flex justify-between text-sm font-bold text-fortnite-yellow">
+                          <span>Réduction</span>
+                          <span>- {cartSaving.toLocaleString("fr-FR")} FCFA</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/10">
+                        <span className="text-xs font-bold text-[#B0B8C8] uppercase tracking-widest">A PAYER</span>
+                        <span className="text-xl text-fortnite-yellow font-display text-3d-yellow">{cartTotal.toLocaleString("fr-FR")} FCFA</span>
                       </div>
                     </div>
 
@@ -384,6 +453,7 @@ export default function CartPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <Footer />
     </main>
   );
 }

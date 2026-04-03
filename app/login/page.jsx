@@ -56,7 +56,14 @@ export default function LoginPage() {
         >
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-fortnite-yellow/0 via-fortnite-yellow to-fortnite-yellow/0 opacity-50"></div>
 
-          <div className="text-center mb-8 relative z-10">
+          <div className="text-center mb-8 relative z-10 flex flex-col items-center">
+            <Link href="/" className="group mb-4 transition-transform hover:scale-110">
+              <img 
+                src="/assets/LamaShop-removebg-preview.png" 
+                alt="LamaShop Logo" 
+                className="h-20 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,241,43,0.3)]"
+              />
+            </Link>
             <h1 className="text-5xl font-display font-normal text-white mb-2 text-3d tracking-wider">CONNEXION</h1>
             <p className="text-gray-400 font-sans font-bold text-sm uppercase tracking-widest">ACCÉDEZ À VOTRE COMPTE</p>
           </div>

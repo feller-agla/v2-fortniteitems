@@ -14,6 +14,7 @@ import { supabase, getAuthHeaders } from '@/app/lib/supabase';
 import { formatLocaleDate, formatLocaleTime } from '@/app/lib/datetime';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -427,6 +428,7 @@ export default function UserMessages() {
       </main>
     }>
       <UserMessagesContent />
+      <Footer />
     </Suspense>
   );
 }

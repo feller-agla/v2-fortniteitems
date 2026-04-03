@@ -6,12 +6,15 @@ export function ShopItem({
   id, 
   name, 
   price, 
+  full_price,
   vbucks, 
   image, 
   type,
   rarity 
 }) {
-  const { addToCart } = useCart();
+  const { addToCart, isDiscounted } = useCart();
+  
+  const displayPrice = isDiscounted ? price : (full_price || price * 1.5);
 
   // Basic color mapping based on rarity (can be expanded)
   const getRarityGradient = () => {
@@ -25,7 +28,7 @@ export function ShopItem({
   };
 
   const handleAdd = () => {
-    addToCart({ id, name, price, vbucks, image, type: 'shop_item' });
+    addToCart({ id, name, price, full_price, vbucks, image, type: 'shop_item' });
   };
 
   return (
@@ -75,9 +78,20 @@ export function ShopItem({
           <span className="text-[10px] sm:text-xs font-display tracking-wide text-[#B0B8C8]/88 mb-1">
              <span className="drop-shadow-md">💰 {vbucks} </span> <span className="hidden sm:inline">V-BUCKS</span>
           </span>
-          <span className="text-sm sm:text-lg font-semibold font-sans text-fortnite-yellow w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] border border-white/5 bg-black/35">
-            {price.toLocaleString('fr-FR')} FCFA
-          </span>
+          <div className="flex flex-col items-center w-full gap-1">
+            {isDiscounted && (
+              <span className="text-[10px] sm:text-xs text-rarity-marvel font-bold line-through opacity-70">
+                {(full_price || price * 1.5).toLocaleString('fr-FR')} FCFA
+              </span>
+            )}
+            <span className={`text-sm sm:text-lg font-bold font-sans w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] border transition-all duration-500 ${
+              isDiscounted 
+                ? 'text-fortnite-yellow border-fortnite-yellow/40 bg-fortnite-yellow/10 scale-105 shadow-[0_0_15px_rgba(241,241,43,0.2)]' 
+                : 'text-white border-white/5 bg-black/35'
+            }`}>
+              {displayPrice.toLocaleString('fr-FR')} FCFA
+            </span>
+          </div>
         </div>
         
         <button 

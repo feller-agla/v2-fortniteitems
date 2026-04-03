@@ -2,7 +2,15 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { HomeIcon, ShoppingBagIcon, InboxIcon, UsersIcon, ArrowLeftEndOnRectangleIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { 
+  HomeIcon, 
+  ShoppingBagIcon, 
+  InboxIcon, 
+  UsersIcon, 
+  ArrowLeftEndOnRectangleIcon, 
+  ChatBubbleLeftRightIcon,
+  TagIcon
+} from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
 
 export default function AdminLayout({ children }) {
@@ -72,11 +80,15 @@ export default function AdminLayout({ children }) {
       {/* Sidebar for Desktop / Top Nav for Mobile */}
       <aside className="w-full md:w-64 bg-[#051024] border-r-4 border-b-4 md:border-b-0 border-[#1A3E7A] flex flex-col shrink-0 z-20">
         <div className="p-6 border-b-2 border-white/5 text-center md:text-left">
-          <h2 className="text-3xl font-display font-normal text-fortnite-yellow text-3d tracking-widest leading-none">
-            ADMIN
-          </h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#B0B8C8] mt-2">
-            GESTION BOUTIQUE
+          <Link href="/admin" className="group flex flex-col items-center gap-2 transition-transform hover:scale-105 active:scale-95">
+            <img 
+              src="/assets/LamaShop-removebg-preview.png" 
+              alt="Logo" 
+              className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,241,43,0.3)]" 
+            />
+          </Link>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#B0B8C8] mt-3">
+            PANEL ADMINISTRATION
           </p>
         </div>
 
@@ -96,6 +108,10 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/users" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
             <UsersIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
             <span className="font-bold text-sm tracking-widest">UTILISATEURS</span>
+          </Link>
+          <Link href="/admin/promo-codes" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
+            <TagIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
+            <span className="font-bold text-sm tracking-widest">CODES PROMO</span>
           </Link>
           <Link href="/admin/messages" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
             <ChatBubbleLeftRightIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />

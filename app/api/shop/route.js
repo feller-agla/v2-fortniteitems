@@ -20,24 +20,22 @@ export async function GET() {
     
     console.log("[SHOP API] Cache expiré ou vide. Récupération des données depuis l'API Fortnite...");
     
-    // Fonction de calcul du prix de vente basé sur la formule EUR/FCFA (Marge = 28%)
+    // Fonction de calcul du prix "Plein" (Sans réduction, Style Fortnite Officiel)
+    const calculateFullPrice = (vbucks) => {
+      // Formule prix plein : environ 1000 V-Bucks = 8500 FCFA
+      let priceFCFA = (vbucks * 7.3);
+      return Math.ceil(priceFCFA / 500) * 500;
+    };
+
+    // Fonction de calcul du prix de vente réduit (Partenaire / actuel)
     const calculateCustomPrice = (vbucks, type) => {
-      // NOUVEAUX TARIFS FORTNITE :
-      // 12500 V-Bucks coûtent 48,26€ (frais inclus).
-      // Coût par V-Buck = 48,26 / 12500 = 0,0038608 €
-      
-      // Étape 1 : Coût unitaire = 0,0038608€ par V-Bucks.
-      // Étape 2 : Diviser par 0.72 pour appliquer 28% de marge de vente. Résultat = Prix de vente en Dollar.
+      // Coût unitaire = 0,0038608€ par V-Bucks.
       const priceDollar = (vbucks * 5) + 500;
-      
-      // Étape 3 : Convertir en FCFA (Taux fixe de l'Dollar ≈ 610)
       const tauxDollarFCFA = 610; 
       let priceFCFA = (vbucks * 5.5);
       
-      // Étape 4 : Arrondi par palier de 50 au supérieur (ex: 2246 -> 2250, 2253 -> 2300)
       priceFCFA = Math.ceil(priceFCFA / 500) * 500;
       
-      // Étape 5 : Marges fixes (+1000 pour Skins, +500 pour Emotes)
       const t = (type || '').toLowerCase();
       let bonus = 0;
       if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
@@ -48,13 +46,11 @@ export async function GET() {
         priceFCFA += bonus;
       }
       
-      // Étape 6 : Frais de paliers
       if (priceFCFA < 5001) {
         priceFCFA += 125;
       } else if (priceFCFA >= 5001 && priceFCFA < 10001) {
         priceFCFA += 225;
       }
-      
       return priceFCFA;
     };
 
@@ -138,6 +134,7 @@ export async function GET() {
         const bundleName = entry.bundle?.name || brItems.map(i => i.name).join(' + ').slice(0, 30) + '...';
         const bundleImage = entry.bundle?.image || entry.newDisplayAsset?.renderImages?.[0]?.image || brItems[0]?.images?.featured || brItems[0]?.images?.icon || '/assets/1000vbucks.png';
         const calcPrice = calculateCustomPrice(vbucksPrice, "Pack");
+        const fullPrice = calculateFullPrice(vbucksPrice);
 
         parsedItems.push({
           section,
@@ -146,7 +143,7 @@ export async function GET() {
           rarity: "Pack",
           vbucks: vbucksPrice,
           price: calcPrice,
-          regular_price: regularPrice,
+          full_price: fullPrice,
           id: entry.offerId || `pack-${bundleName.replace(/\s/g, '-')}`,
           image: bundleImage,
           is_bundle: true
@@ -159,6 +156,7 @@ export async function GET() {
         const item = brItems[0];
         const typeStr = item.type?.displayValue || item.type?.value || "Autres";
         const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
+        const fullPrice = calculateFullPrice(vbucksPrice);
 
         parsedItems.push({
           section,
@@ -168,7 +166,7 @@ export async function GET() {
           rarity: { value: item.rarity?.value || "Common" },
           vbucks: vbucksPrice,
           price: calcPrice,
-          regular_price: regularPrice,
+          full_price: fullPrice,
           id: item.id,
           image: item.images?.featured || item.images?.icon || item.images?.smallIcon
         });
@@ -179,6 +177,7 @@ export async function GET() {
         cars.forEach(car => {
            const typeStr = car.type?.displayValue || "Voiture";
            const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
+           const fullPrice = calculateFullPrice(vbucksPrice);
 
            parsedItems.push({
              section,
@@ -187,7 +186,7 @@ export async function GET() {
              rarity: { value: car.rarity?.value || "Common" },
              vbucks: vbucksPrice,
              price: calcPrice,
-             regular_price: regularPrice,
+             full_price: fullPrice,
              id: car.id || car.vehicleId,
              image: car.images?.small || car.images?.large
            });
