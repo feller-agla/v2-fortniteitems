@@ -1,15 +1,24 @@
 export const runtime = 'edge';
+export const revalidate = 0; // Empêche Next.js de mettre en cache la route elle-même
 
 import { NextResponse } from 'next/server';
 
 // Variables globales de cache très basiques pour le serveur Next.js
 let shopCache = null;
 let lastUpdate = null;
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL_MS = 30 * 1000; // 30 secondes (plus court pour tes tests)
 
 export async function GET() {
   try {
     const now = Date.now();
+
+    // 1. Vérification du cache (TTL = 15 minutes)
+    if (shopCache && lastUpdate && (now - lastUpdate < CACHE_TTL_MS)) {
+      console.log("[SHOP API] Retour du cache (Temps restant: %ds)", Math.round((CACHE_TTL_MS - (now - lastUpdate)) / 1000));
+      return NextResponse.json(shopCache);
+    }
+    
+    console.log("[SHOP API] Cache expiré ou vide. Récupération des données depuis l'API Fortnite...");
     
     // Fonction de calcul du prix de vente basé sur la formule EUR/FCFA (Marge = 28%)
     const calculateCustomPrice = (vbucks, type) => {
@@ -30,11 +39,14 @@ export async function GET() {
       
       // Étape 5 : Marges fixes (+1000 pour Skins, +500 pour Emotes)
       const t = (type || '').toLowerCase();
-      if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
-        priceFCFA += 1000;
-      } else if (t.includes('emote') || t.includes('danse')) {
-        priceFCFA += 500;
-      }
+      let bonus = 0;
+      // if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
+      //   bonus = 1000;
+      //   priceFCFA += bonus;
+      // } else if (t.includes('emote') || t.includes('danse')) {
+      //   bonus = 500;
+      //   priceFCFA += bonus;
+      // }
       
       // Étape 6 : Frais de paliers
       if (priceFCFA < 5001) {
@@ -51,7 +63,7 @@ export async function GET() {
       "Accept": "application/json",
       "Content-Type": "application/json",
       // Some providers block requests without a UA
-      "User-Agent": "FortniteItems/1.0 (Next.js server route)",
+      "User-Agent": "LamaShop/1.0 (Next.js server route)",
       ...(process.env.FORTNITE_API_KEY ? { "Authorization": process.env.FORTNITE_API_KEY } : {}),
     };
 
@@ -160,6 +172,7 @@ export async function GET() {
           id: item.id,
           image: item.images?.featured || item.images?.icon || item.images?.smallIcon
         });
+        console.log(`[SHOP] ${item.name} | Type: ${typeStr} -> vBucks: ${vbucksPrice} -> Final: ${calcPrice} FCFA`);
       }
 
       // 3. Voitures (Cars)
@@ -179,16 +192,26 @@ export async function GET() {
              id: car.id || car.vehicleId,
              image: car.images?.small || car.images?.large
            });
+           console.log(`[SHOP] ${car.name || 'Voiture'} | Type: ${typeStr} -> vBucks: ${vbucksPrice} -> Final: ${calcPrice} FCFA`);
         });
       }
+    });
+    
+    // ——— DÉDUPLICATION ———
+    // Certains objets (ex: Roues, Voitures) peuvent apparaître en double avec le même ID
+    const seenIds = new Set();
+    const uniqueItems = parsedItems.filter(item => {
+      if (!item.id || seenIds.has(item.id)) return false;
+      seenIds.add(item.id);
+      return true;
     });
 
     // On prépare notre objet final (Similaire au rendu Python)
     const result = {
       status: "success",
       date: new Date().toISOString(),
-      total_items: parsedItems.length,
-      data: parsedItems
+      total_items: uniqueItems.length,
+      data: uniqueItems
     };
 
     // Mise en cache

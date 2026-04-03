@@ -4,7 +4,7 @@ import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Fortnite Items - Boutique V-Bucks",
+  title: "LamaShop - Boutique V-Bucks",
   description: "Achetez vos V-Bucks et packs Fortnite au meilleur prix.",
 };
 

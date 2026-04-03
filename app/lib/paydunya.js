@@ -63,7 +63,7 @@ export function buildCheckoutInvoiceBody({
   orderId,
   baseUrl,
 }) {
-  const storeName = process.env.SHOP_NAME || process.env.PAYDUNYA_STORE_NAME || 'FortniteItems';
+  const storeName = process.env.SHOP_NAME || process.env.PAYDUNYA_STORE_NAME || 'LamaShop';
   const itemsNode = {};
   (items || []).forEach((item, i) => {
     const qty = Math.max(1, Number(item.quantity) || 1);

@@ -31,7 +31,7 @@ export default function Navbar() {
         {/* Logo — allow shrink on narrow screens so the right cluster keeps margin */}
         <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-3">
           <span className="font-display text-lg font-normal leading-none tracking-wide text-white text-3d transition-colors group-hover:text-fortnite-yellow sm:text-xl sm:tracking-wider md:text-2xl md:tracking-widest lg:text-3xl mt-0.5 sm:mt-1">
-            FORTNITE<span className="text-fortnite-yellow transition-colors group-hover:text-white">ITEMS</span>
+            LAMA<span className="text-fortnite-yellow transition-colors group-hover:text-white">SHOP</span>
           </span>
         </Link>
         

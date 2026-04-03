@@ -28,7 +28,7 @@ export async function POST(request) {
       process.env.NEXT_PUBLIC_BASE_URL ||
       'http://localhost:3000';
     const itemsSummary = items.map((item) => item.name).join(', ');
-    const message = `Commande FortniteItems - ${itemsSummary}`;
+    const message = `Commande LamaShop - ${itemsSummary}`;
 
     // ——— PayDunya (test / prod selon PAYDUNYA_SANDBOX et NODE_ENV) ———
     if (usePaydunya()) {
@@ -89,7 +89,7 @@ export async function POST(request) {
 
     const lygosPayload = {
       amount: parseInt(amount),
-      shop_name: process.env.SHOP_NAME || 'FortniteItems',
+      shop_name: process.env.SHOP_NAME || 'LamaShop',
       message: message,
       success_url: successUrl,
       failure_url: failureUrl,

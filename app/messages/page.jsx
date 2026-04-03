@@ -265,7 +265,7 @@ function UserMessagesContent() {
                       <ChatBubbleLeftRightIcon className="w-6 h-6 text-fortnite-yellow" />
                     </div>
                     <div>
-                      <h3 className="text-white font-bold leading-none">Support FortniteItems</h3>
+                      <h3 className="text-white font-bold leading-none">Support LamaShop</h3>
                       <p className="text-[10px] text-[#aab6ca] font-semibold uppercase tracking-wide mt-1">Chat en direct • Commande #{selectedOrderId.slice(0, 8)}</p>
                     </div>
                   </div>
