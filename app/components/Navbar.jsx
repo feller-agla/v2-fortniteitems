@@ -5,11 +5,13 @@ import { ShoppingCartIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useUnreadMessages } from "../hooks/useUnreadMessages";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { totalItems } = useCart();
+  const { unreadCount } = useUnreadMessages();
   const { user, profile, signOut, loading, avatarUrl, displayName, isAdmin } = useAuth();
 
   useEffect(() => {
@@ -44,7 +46,9 @@ export default function Navbar() {
           {user && (
             <Link href="/messages" className="text-fortnite-yellow hover:text-white transition-colors text-3d hover:translate-y-[-2px] inline-block relative group/msg">
               MESSAGES
-              <span className="absolute -top-1 -right-4 w-2 h-2 bg-rarity-marvel rounded-full animate-pulse shadow-[0_0_10px_rgba(255,0,0,0.8)]"></span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-4 w-2 h-2 bg-rarity-marvel rounded-full animate-pulse shadow-[0_0_10px_rgba(255,0,0,0.8)]"></span>
+              )}
             </Link>
           )}
         </div>
@@ -145,10 +149,13 @@ export default function Navbar() {
                     {user && (
                       <Link
                         href="/messages"
-                        className="block px-5 py-3 text-fortnite-yellow font-medium text-base uppercase tracking-wider hover:bg-white/5 transition-colors border-b border-white/5 text-center"
+                        className="block px-5 py-3 text-fortnite-yellow font-medium text-base uppercase tracking-wider hover:bg-white/5 transition-colors border-b border-white/5 text-center relative"
                         onClick={() => setShowUserMenu(false)}
                       >
                         MESSAGES
+                        {unreadCount > 0 && (
+                          <span className="absolute top-1/2 -translate-y-1/2 right-12 w-2 h-2 bg-rarity-marvel rounded-full animate-pulse shadow-[0_0_10px_rgba(255,0,0,0.8)]"></span>
+                        )}
                       </Link>
                     )}
 

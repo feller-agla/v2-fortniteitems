@@ -168,19 +168,19 @@ export default function CartPage() {
                           {item.price.toLocaleString("fr-FR")} FCFA
                         </div>
                         <div className="flex items-center gap-1 bg-black/80 rounded-xl p-1 border-2 border-[#1A3E7A]">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="p-3 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light disabled:opacity-30 active:border-b-0 active:translate-y-[4px] text-white">
-                            <MinusIcon className="w-5 h-5" />
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="p-2 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light disabled:opacity-30 active:border-b-0 active:translate-y-[4px] text-white">
+                            <MinusIcon className="w-4 h-4" />
                           </button>
-                          <span className="font-semibold font-display text-3xl w-12 text-center text-white/95 pt-1">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-3 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light active:border-b-0 active:translate-y-[4px] text-white">
-                            <PlusIcon className="w-5 h-5" />
+                          <span className="font-semibold font-display text-2xl w-10 text-center text-white/95 pt-1">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-2 bg-fortnite-blue hover:bg-fortnite-blue-light rounded-lg transition-colors border-b-4 border-fortnite-blue-light active:border-b-0 active:translate-y-[4px] text-white">
+                            <PlusIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
                     </div>
-                    <button onClick={() => removeFromCart(item.id)} className="absolute -top-4 -right-4 md:top-auto md:bottom-4 md:right-4 z-20">
-                      <div className="p-3 bg-rarity-marvel hover:bg-red-500 text-white rounded-xl transition-all border-b-4 border-red-900 border-x-2 shadow-[0_5px_15px_rgba(0,0,0,0.5)] active:border-b-0 active:translate-y-[4px]">
-                        <TrashIcon className="w-6 h-6" />
+                    <button onClick={() => removeFromCart(item.id)} className="absolute top-4 right-4 z-20">
+                      <div className="p-2 bg-rarity-marvel/80 hover:bg-red-500 text-white rounded-lg transition-all border-b-2 border-red-900 shadow-md active:border-b-0 active:translate-y-[2px]">
+                        <TrashIcon className="w-5 h-5" />
                       </div>
                     </button>
                   </div>
@@ -191,7 +191,7 @@ export default function CartPage() {
               <div className="lg:col-span-1">
                 <div className="bg-[#051024] border-4 border-[#1A3E7A] rounded-2xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] sticky top-32 overflow-hidden">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-fortnite-yellow/10 blur-[50px] rounded-full pointer-events-none mix-blend-screen z-0"></div>
-                  <h3 className="text-4xl font-display tracking-wider mb-8 border-b-4 border-[#1A3E7A] pb-4 text-white text-3d relative z-10">RÉSUMÉ</h3>
+                  <h3 className="text-2xl font-display tracking-wider mb-8 border-b-4 border-[#1A3E7A] pb-4 text-white text-3d relative z-10 text-center">RÉSUMÉ</h3>
                   <div className="space-y-4 mb-8 font-sans text-lg font-semibold relative z-10">
                     <div className="flex justify-between text-gray-300/90 bg-black/35 p-3 rounded-lg border border-white/5">
                       <span>Articles ({cartItems.length})</span>
@@ -203,19 +203,19 @@ export default function CartPage() {
                     </div>
                   </div>
                   <div className="border-t-4 border-[#1A3E7A] pt-8 mb-8 relative z-10">
-                    <div className="flex justify-between items-end bg-black/60 p-4 rounded-xl border-2 border-white/5">
-                      <span className="text-2xl font-display tracking-widest text-[#B0B8C8]">TOTAL</span>
-                      <span className="text-4xl lg:text-5xl font-display text-fortnite-yellow text-3d-yellow leading-none text-right">
-                        {cartTotal.toLocaleString("fr-FR")} <span className="text-xl font-sans opacity-80">FCFA</span>
+                    <div className="flex justify-between items-center bg-black/60 p-4 rounded-xl border-2 border-white/5">
+                      <span className="text-lg font-display tracking-widest text-[#B0B8C8]">TOTAL</span>
+                      <span className="text-3xl lg:text-4xl font-display text-fortnite-yellow text-3d-yellow leading-none text-right">
+                        {cartTotal.toLocaleString("fr-FR")} <span className="text-base font-sans opacity-80 italic">FCFA</span>
                       </span>
                     </div>
                   </div>
                   <div className="relative z-10">
                     <button
                       onClick={handleCheckout}
-                      className="btn-fortnite w-full bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue py-5 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all"
+                      className="btn-fortnite w-full bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue py-3.5 text-lg shadow-[0_4px_0_rgba(180,160,0,1)] hover:shadow-[0_2px_0_rgba(180,160,0,1)] transition-all"
                     >
-                      <span className="btn-fortnite-inner font-semibold text-2xl tracking-wide mt-1">COMMANDER →</span>
+                      <span className="btn-fortnite-inner font-bold text-xl tracking-wide mt-1">COMMANDER →</span>
                     </button>
                   </div>
                   <div className="mt-6 flex flex-col items-center gap-2 relative z-10 opacity-70">

@@ -58,14 +58,27 @@ export async function GET(request) {
     const allowed = await canAccessOrder(admin, orderId, userId);
     if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { data, error } = await admin
+    // Fetch messages
+    const { data: messagesData, error: fetchError } = await admin
       .from('messages')
       .select('*')
       .eq('order_id', orderId)
       .order('created_at', { ascending: true });
 
-    if (error) throw error;
-    const list = (data ?? []).map((m) => ({ ...m, text: m.content ?? m.text ?? '' }));
+    if (fetchError) throw fetchError;
+
+    // Mark admin messages as read if the user is fetching them
+    // (Only if the user is not an admin themselves, or we can just mark all as read for this order visibility)
+    if (userId) {
+      await admin
+        .from('messages')
+        .update({ is_read: true })
+        .eq('order_id', orderId)
+        .eq('is_admin_sender', true)
+        .eq('is_read', false);
+    }
+
+    const list = (messagesData ?? []).map((m) => ({ ...m, text: m.content ?? m.text ?? '' }));
     return NextResponse.json(list, {
       headers: {
         'Cache-Control': 'no-store, max-age=0',

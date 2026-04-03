@@ -95,12 +95,19 @@ export default function RegisterPage() {
                 Rentre ce code ci-dessous pour valider ton compte.
               </p>
               
-              <form onSubmit={handleVerifyOtp} className="space-y-6 text-left">
-                <div>
-                   <label className="block text-white font-sans font-bold text-[11px] mb-2 uppercase tracking-widest text-center text-gray-500">CODE À 6 CHIFFRES</label>
-                   <input type="text" maxLength="6" required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-[#0c1628] border-2 border-white/20 rounded-xl px-4 py-4 text-white/90 text-center text-2xl font-sans font-medium tracking-[0.5em] focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner placeholder:text-gray-700" placeholder="000000" />
-                </div>
+               <form onSubmit={handleVerifyOtp} className="space-y-6 text-left">
+                 <div>
+                    <label className="block text-white font-sans font-bold text-[11px] mb-2 uppercase tracking-widest text-center text-gray-500">CODE À 6 CHIFFRES</label>
+                    <input type="text" maxLength="6" required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                     className="w-full bg-[#0c1628] border-2 border-white/20 rounded-xl px-4 py-4 text-white/90 text-center text-2xl font-sans font-medium tracking-[0.5em] focus:border-fortnite-yellow focus:outline-none transition-all shadow-inner placeholder:text-gray-700" placeholder="000000" />
+                    
+                    <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg text-center">
+                      <p className="text-[10px] text-gray-400 font-sans font-medium uppercase tracking-wider leading-relaxed">
+                        Le mail peut mettre <span className="text-fortnite-yellow italic">2 à 5 minutes</span> à arriver.<br />
+                        <span className="text-white font-bold underline decoration-fortnite-yellow/50 underline-offset-4">PENSEZ À VÉRIFIER VOS SPAMS !</span>
+                      </p>
+                    </div>
+                 </div>
                 
                 {error && (
                   <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-sm text-red-300 font-bold text-center">
@@ -109,7 +116,7 @@ export default function RegisterPage() {
                 )}
                 
                 <button type="submit" disabled={loading}
-                  className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-5 text-2xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50 uppercase tracking-widest font-display">
+                  className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-3.5 text-xl shadow-[0_4px_0_rgba(180,160,0,1)] hover:shadow-[0_2px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50 uppercase tracking-widest font-display">
                   <span className="btn-fortnite-inner flex items-center justify-center font-bold">
                     {loading ? "VÉRIFICATION..." : "VALIDER LE CODE"}
                   </span>
@@ -163,7 +170,7 @@ export default function RegisterPage() {
                     className="w-full bg-black/60 border-2 border-white/10 rounded-xl px-4 py-3 text-white/90 font-sans font-medium focus:border-rarity-rare focus:outline-none transition-colors shadow-inner" placeholder="••••••••" />
                 </div>
                 <button type="submit" disabled={loading}
-                  className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-4 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50">
+                  className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-3.5 text-lg shadow-[0_4px_0_rgba(180,160,0,1)] hover:shadow-[0_2px_0_rgba(180,160,0,1)] transition-all mt-4 disabled:opacity-50">
                   <span className="btn-fortnite-inner flex items-center justify-center gap-2 mt-1 font-bold">
                     {loading ? "INSCRIPTION..." : "M'INSCRIRE"}
                   </span>

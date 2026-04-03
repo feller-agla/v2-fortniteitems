@@ -111,7 +111,7 @@ export default function LoginPage() {
             </div>
             <button 
               type="submit" disabled={loading}
-              className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-4 text-xl shadow-[0_6px_0_rgba(180,160,0,1)] hover:shadow-[0_4px_0_rgba(180,160,0,1)] transition-all mt-2 disabled:opacity-50"
+              className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-3.5 text-lg shadow-[0_4px_0_rgba(180,160,0,1)] hover:shadow-[0_2px_0_rgba(180,160,0,1)] transition-all mt-2 disabled:opacity-50"
             >
               <span className="btn-fortnite-inner flex items-center justify-center gap-2 mt-1 font-bold">
                 {loading ? "CONNEXION..." : "SE CONNECTER"}
