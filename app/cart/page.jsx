@@ -319,12 +319,12 @@ export default function CartPage() {
                       <label className="block text-white/95 font-semibold text-xs mb-1.5 uppercase tracking-wide">
                         📱 TON APPAREIL
                       </label>
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                         {DEVICES.map((d) => (
                           <button
                             key={d} type="button"
                             onClick={() => setForm({ ...form, device: d })}
-                            className={`py-2 px-1 rounded-xl font-medium text-sm border-2 transition-all ${
+                            className={`py-2 px-1 rounded-xl font-sans font-medium text-[11px] sm:text-xs border-2 transition-all ${
                               form.device === d
                                 ? "bg-fortnite-yellow text-fortnite-blue border-fortnite-yellow shadow-[0_4px_0_rgba(180,160,0,1)]"
                                 : "bg-black/40 text-gray-300 border-white/10 hover:border-fortnite-yellow/50"

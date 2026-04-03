@@ -30,3 +30,21 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const adminClient = supabaseAdmin();
+    const { error } = await adminClient
+      .from('orders')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Order Deletion Error:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

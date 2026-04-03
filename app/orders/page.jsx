@@ -52,10 +52,14 @@ function OrdersPageContent() {
         const { data, error } = await supabase
           .from('orders')
           .select('*')
-          .filter('customer_data->>id', 'eq', user.id)
+          .contains('customer_data', { id: user.id })
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('[DEBUG] Supabase Fetch Error Detail (Orders):');
+          console.dir(error);
+          throw error;
+        }
         
         setOrders(data || []);
         setFilteredOrders(data || []);
