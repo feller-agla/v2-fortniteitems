@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 // Variables globales de cache très basiques pour le serveur Next.js
 let shopCache = null;
 let lastUpdate = null;
-const CACHE_TTL_MS = 30 * 1000; // 30 secondes (plus court pour tes tests)
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 export async function GET() {
   try {
@@ -40,13 +40,13 @@ export async function GET() {
       // Étape 5 : Marges fixes (+1000 pour Skins, +500 pour Emotes)
       const t = (type || '').toLowerCase();
       let bonus = 0;
-      // if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
-      //   bonus = 1000;
-      //   priceFCFA += bonus;
-      // } else if (t.includes('emote') || t.includes('danse')) {
-      //   bonus = 500;
-      //   priceFCFA += bonus;
-      // }
+      if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
+        bonus = 1000;
+        priceFCFA += bonus;
+      } else if (t.includes('emote') || t.includes('danse')) {
+        bonus = 500;
+        priceFCFA += bonus;
+      }
       
       // Étape 6 : Frais de paliers
       if (priceFCFA < 5001) {
@@ -172,7 +172,6 @@ export async function GET() {
           id: item.id,
           image: item.images?.featured || item.images?.icon || item.images?.smallIcon
         });
-        console.log(`[SHOP] ${item.name} | Type: ${typeStr} -> vBucks: ${vbucksPrice} -> Final: ${calcPrice} FCFA`);
       }
 
       // 3. Voitures (Cars)
@@ -192,7 +191,6 @@ export async function GET() {
              id: car.id || car.vehicleId,
              image: car.images?.small || car.images?.large
            });
-           console.log(`[SHOP] ${car.name || 'Voiture'} | Type: ${typeStr} -> vBucks: ${vbucksPrice} -> Final: ${calcPrice} FCFA`);
         });
       }
     });
