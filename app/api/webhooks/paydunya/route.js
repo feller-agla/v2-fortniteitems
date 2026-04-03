@@ -47,7 +47,7 @@ export async function POST(request) {
 
     const hash = payload.hash;
     const skipHash = process.env.PAYDUNYA_SKIP_IPN_HASH === 'true';
-    if (hash && !skipHash && !verifyPaydunyaHash(hash)) {
+    if (hash && !skipHash && !(await verifyPaydunyaHash(hash))) {
       console.error('[PayDunya IPN] Hash invalide (mettre PAYDUNYA_SKIP_IPN_HASH=true uniquement en debug)');
       return new NextResponse('FORBIDDEN', { status: 403 });
     }

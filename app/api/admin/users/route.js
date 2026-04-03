@@ -1,5 +1,5 @@
 // Switch to Node.js runtime for more stability in admin tasks
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase';

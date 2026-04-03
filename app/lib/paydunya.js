@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+// Use standard Web Crypto API for Edge compatibility
 
 /** Sandbox vs production API base (path /v1/checkout-invoice/create is appended). */
 export function getPaydunyaApiRoot() {
@@ -41,13 +41,20 @@ export function paydunyaRequestHeaders() {
  * Vérifie le hash SHA-512 du Master Key (doc PayDunya).
  * @param {string} receivedHash
  */
-export function verifyPaydunyaHash(receivedHash) {
+export async function verifyPaydunyaHash(receivedHash) {
   if (!receivedHash || typeof receivedHash !== 'string') return false;
   try {
     const { master } = getPaydunyaKeys();
-    const expected = createHash('sha512').update(master, 'utf8').digest('hex');
+    
+    // Web Crypto API logic (Standard for Edge/Browser)
+    const msgUint8 = new TextEncoder().encode(master);
+    const hashBuffer = await crypto.subtle.digest('SHA-512', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const expected = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
     return expected === receivedHash;
-  } catch {
+  } catch (err) {
+    console.error("Paydunya Hash Verification Error:", err);
     return false;
   }
 }
