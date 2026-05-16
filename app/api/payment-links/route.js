@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const PAYMENT_LINKS_FILE = path.join(process.cwd(), 'data', 'payment-links.json');
 

@@ -3,7 +3,6 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ClientItemDetails from "./ClientItemDetails";
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 async function getItemDetails(id) {
