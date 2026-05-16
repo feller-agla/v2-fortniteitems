@@ -8,13 +8,27 @@ export const dynamic = 'force-dynamic';
 
 async function getItemDetails(id) {
   try {
-    const res = await fetch("http://localhost:3000/api/shop", { cache: "no-store" });
+    // Utiliser une URL complète qui fonctionne en production
+    // En local, NEXT_PUBLIC_BASE_URL est défini dans .env.local
+    // En production (Cloudflare Pages), on utilise lamashop.store
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lamashop.store';
+    const res = await fetch(`${baseUrl}/api/shop`, { 
+      cache: "no-store",
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data.find(item => item.id === id) || null;
   } catch (err) {
+    console.error('Error fetching item details:', err);
     return null;
   }
+}
+
+function getBaseUrl() {
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://lamashop.store';
 }
 
 export default async function ItemDetailsPage({ params }) {
