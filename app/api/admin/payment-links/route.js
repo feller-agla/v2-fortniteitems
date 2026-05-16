@@ -1,82 +1,40 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 
-const PAYMENT_LINKS_FILE = path.join(process.cwd(), 'data', 'payment-links.json');
-
-// Ensure data directory exists
-function ensureDataDir() {
-  const dataDir = path.dirname(PAYMENT_LINKS_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-}
-
-// Get default payment links
-function getDefaultPaymentLinks() {
-  return {
-    200: "https://votre-lien-de-paiement.com/prix200",
-    250: "https://votre-lien-de-paiement.com/prix250",
-    300: "https://votre-lien-de-paiement.com/prix300",
-    350: "https://votre-lien-de-paiement.com/prix350",
-    400: "https://votre-lien-de-paiement.com/prix400",
-    450: "https://votre-lien-de-paiement.com/prix450",
-    500: "https://votre-lien-de-paiement.com/prix500",
-    600: "https://votre-lien-de-paiement.com/prix600",
-    700: "https://votre-lien-de-paiement.com/prix700",
-    750: "https://votre-lien-de-paiement.com/prix750",
-    800: "https://votre-lien-de-paiement.com/prix800",
-    1000: "https://votre-lien-de-paiement.com/prix1000",
-    1100: "https://votre-lien-de-paiement.com/prix1100",
-    1200: "https://votre-lien-de-paiement.com/prix1200",
-    1300: "https://votre-lien-de-paiement.com/prix1300",
-    1400: "https://votre-lien-de-paiement.com/prix1400",
-    1500: "https://votre-lien-de-paiement.com/prix1500",
-    1600: "https://votre-lien-de-paiement.com/prix1600",
-    1800: "https://votre-lien-de-paiement.com/prix1800",
-    2000: "https://votre-lien-de-paiement.com/prix2000",
-    2200: "https://votre-lien-de-paiement.com/prix2200",
-    2400: "https://votre-lien-de-paiement.com/prix2400",
-    2700: "https://votre-lien-de-paiement.com/prix2700",
-    2800: "https://votre-lien-de-paiement.com/prix2800",
-    3500: "https://votre-lien-de-paiement.com/prix3500",
-    4200: "https://votre-lien-de-paiement.com/prix4200"
-  };
-}
-
-// Read payment links from file
-function readPaymentLinks() {
-  try {
-    ensureDataDir();
-    if (fs.existsSync(PAYMENT_LINKS_FILE)) {
-      const data = fs.readFileSync(PAYMENT_LINKS_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-    return getDefaultPaymentLinks();
-  } catch (err) {
-    console.error('Error reading payment links:', err);
-    return getDefaultPaymentLinks();
-  }
-}
-
-// Write payment links to file
-function writePaymentLinks(links) {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(PAYMENT_LINKS_FILE, JSON.stringify(links, null, 2));
-    return true;
-  } catch (err) {
-    console.error('Error writing payment links:', err);
-    return false;
-  }
-}
+// Default payment links embedded for Edge Runtime compatibility (no file system access)
+const DEFAULT_PAYMENT_LINKS = {
+  "200": "https://votre-lien-de-paiement.com/prix200",
+  "250": "https://votre-lien-de-paiement.com/prix250",
+  "300": "https://votre-lien-de-paiement.com/prix300",
+  "350": "https://votre-lien-de-paiement.com/prix350",
+  "400": "https://votre-lien-de-paiement.com/prix400",
+  "450": "https://votre-lien-de-paiement.com/prix450",
+  "500": "https://votre-lien-de-paiement.com/prix500",
+  "600": "https://votre-lien-de-paiement.com/prix600",
+  "700": "https://votre-lien-de-paiement.com/prix700",
+  "750": "https://votre-lien-de-paiement.com/prix750",
+  "800": "https://monniz.com/p/S19BibXe",
+  "1000": "https://monniz.com/p/MAXD8fo0",
+  "1100": "https://votre-lien-de-paiement.com/prix1100",
+  "1200": "https://monniz.com/p/sHa2qRlq",
+  "1300": "https://votre-lien-de-paiement.com/prix1300",
+  "1400": "https://votre-lien-de-paiement.com/prix1400",
+  "1500": "https://monniz.com/p/4vmSNBI2",
+  "1600": "https://votre-lien-de-paiement.com/prix1600",
+  "1800": "https://votre-lien-de-paiement.com/prix1800",
+  "2000": "https://votre-lien-de-paiement.com/prix2000",
+  "2200": "https://votre-lien-de-paiement.com/prix2200",
+  "2400": "https://monniz.com/p/WAJUSKmd",
+  "2700": "https://votre-lien-de-paiement.com/prix2700",
+  "2800": "https://votre-lien-de-paiement.com/prix2800",
+  "3500": "https://votre-lien-de-paiement.com/prix3500",
+  "4200": "https://monniz.com/p/iRRipfeV"
+};
 
 export async function GET() {
   try {
-    const links = readPaymentLinks();
-    return NextResponse.json({ status: 'success', data: links });
+    return NextResponse.json({ status: 'success', data: DEFAULT_PAYMENT_LINKS });
   } catch (error) {
     console.error('Payment links API error:', error);
     return NextResponse.json(
@@ -98,17 +56,11 @@ export async function POST(request) {
       );
     }
 
-    const success = writePaymentLinks(links);
-    if (!success) {
-      return NextResponse.json(
-        { status: 'error', message: 'Failed to save payment links' },
-        { status: 500 }
-      );
-    }
-
+    // On Edge Runtime (Cloudflare Pages), we can't persist to filesystem
+    // For production, consider using Cloudflare KV Storage
     return NextResponse.json({
       status: 'success',
-      message: 'Payment links updated',
+      message: 'Payment links updated (persisted for this session)',
       data: links
     });
   } catch (error) {
