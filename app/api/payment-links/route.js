@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const runtime = 'edge';
+
 const PAYMENT_LINKS_FILE = path.join(process.cwd(), 'data', 'payment-links.json');
 
 // Get default payment links

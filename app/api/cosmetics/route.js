@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+
 let cosmeticsCache = null;
 let lastUpdate = null;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 heure
