@@ -3,14 +3,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingCartIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
-import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useUnreadMessages } from "../hooks/useUnreadMessages";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { totalItems } = useCart();
   const { unreadCount } = useUnreadMessages();
   const { user, profile, signOut, loading, avatarUrl, displayName, isAdmin } = useAuth();
 
@@ -57,18 +55,6 @@ export default function Navbar() {
 
         {/* Right Actions — flex-shrink-0 keeps avatar + cart inside padded area (no edge clipping) */}
         <div className="flex flex-shrink-0 items-center gap-3 md:gap-4">
-          {/* Cart */}
-          <Link
-            href="/cart"
-            className="group relative -mr-0.5 p-1.5 text-white transition-colors hover:text-fortnite-yellow sm:p-2"
-          >
-            <ShoppingCartIcon suppressHydrationWarning className="h-7 w-7 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_15px_rgba(255,241,43,0.8)] sm:h-8 sm:w-8" />
-            {(totalItems > 0) && (
-              <span className="absolute -top-1 -right-1 bg-rarity-marvel text-white text-[12px] font-sans font-bold w-6 h-6 flex items-center justify-center border-2 border-white rounded-full shadow-[0_4px_0_rgba(150,0,0,1)]">
-                {totalItems}
-              </span>
-            )}
-          </Link>
 
           {/* Auth Area - shows immediately once user state is known */}
           {loading ? (

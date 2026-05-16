@@ -7,9 +7,10 @@ import {
   ShoppingBagIcon, 
   InboxIcon, 
   UsersIcon, 
-  ArrowLeftEndOnRectangleIcon, 
+  ArrowLeftEndOnRectangleIcon,
   ChatBubbleLeftRightIcon,
-  TagIcon
+  TagIcon,
+  CreditCardIcon
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
 
@@ -116,6 +117,10 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/messages" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
             <ChatBubbleLeftRightIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
             <span className="font-bold text-sm tracking-widest">MESSAGES</span>
+          </Link>
+          <Link href="/admin/payment-links" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
+            <CreditCardIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
+            <span className="font-bold text-sm tracking-widest">LIENS PAIEMENT</span>
           </Link>
         </nav>
 

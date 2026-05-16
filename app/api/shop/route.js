@@ -20,41 +20,35 @@ export async function GET() {
     
     console.log("[SHOP API] Cache expiré ou vide. Récupération des données depuis l'API Fortnite...");
     
-    // Fonction de calcul du prix "Plein" (Sans réduction, Style Fortnite Officiel)
-    const calculateFullPrice = (vbucks) => {
-      // Formule prix plein : environ 1000 V-Bucks = 8500 FCFA
-      let priceFCFA = (vbucks * 7.3);
-      return Math.ceil(priceFCFA / 500) * 500;
-    };
-
-    // Fonction de calcul du prix de vente réduit (Partenaire / actuel)
+    // Fonction de calcul du prix de vente
     const calculateCustomPrice = (vbucks, type) => {
       // Coût unitaire = 0,0038608€ par V-Bucks.
-      const priceDollar = (vbucks * 5) + 500;
-      const tauxDollarFCFA = 610; 
+      // const priceDollar = (vbucks * 5) + 500;
+      // const tauxDollarFCFA = 610; 
       let priceFCFA = (vbucks * 5.5);
       
-      priceFCFA = Math.ceil(priceFCFA / 500) * 500;
       
-      const t = (type || '').toLowerCase();
-      let bonus = 0;
-      if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
-        bonus = 1000;
-        priceFCFA += bonus;
-      } else if (t.includes('emote') || t.includes('danse')) {
-        bonus = 500;
-        priceFCFA += bonus;
-      }
+      // priceFCFA = Math.ceil(priceFCFA / 500) * 500;
       
-      if (priceFCFA < 5001) {
-        priceFCFA += 125;
-      } else if (priceFCFA >= 5001 && priceFCFA < 10001) {
-        priceFCFA += 225;
-      }
+      // const t = (type || '').toLowerCase();
+      // let bonus = 0;
+      // if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
+      //   bonus = 1000;
+      //   priceFCFA += bonus;
+      // } else if (t.includes('emote') || t.includes('danse')) {
+      //   bonus = 500;
+      //   priceFCFA += bonus;
+      // }
+      
+      // if (priceFCFA < 5001) {
+      //   priceFCFA += 125;
+      // } else if (priceFCFA >= 5001 && priceFCFA < 10001) {
+      //   priceFCFA += 225;
+      // }
       return priceFCFA;
     };
 
-    const url = "https://fortnite-api.com/v2/shop?language=fr";
+    const url = "https://fortnite-api.com/v2/shop?language=fr                       ";
     const headers = {
       "Accept": "application/json",
       "Content-Type": "application/json",
@@ -134,19 +128,19 @@ export async function GET() {
         const bundleName = entry.bundle?.name || brItems.map(i => i.name).join(' + ').slice(0, 30) + '...';
         const bundleImage = entry.bundle?.image || entry.newDisplayAsset?.renderImages?.[0]?.image || brItems[0]?.images?.featured || brItems[0]?.images?.icon || '/assets/1000vbucks.png';
         const calcPrice = calculateCustomPrice(vbucksPrice, "Pack");
-        const fullPrice = calculateFullPrice(vbucksPrice);
 
         parsedItems.push({
           section,
           name: bundleName,
+          description: entry.bundle?.info || "Un pack fantastique Fortnite !",
           type: "Pack",
           rarity: "Pack",
           vbucks: vbucksPrice,
           price: calcPrice,
-          full_price: fullPrice,
           id: entry.offerId || `pack-${bundleName.replace(/\s/g, '-')}`,
           image: bundleImage,
-          is_bundle: true
+          is_bundle: true,
+          bundle_items: brItems
         });
         return; // Fin du traitement pour cette entry
       }
@@ -156,7 +150,6 @@ export async function GET() {
         const item = brItems[0];
         const typeStr = item.type?.displayValue || item.type?.value || "Autres";
         const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
-        const fullPrice = calculateFullPrice(vbucksPrice);
 
         parsedItems.push({
           section,
@@ -166,9 +159,10 @@ export async function GET() {
           rarity: { value: item.rarity?.value || "Common" },
           vbucks: vbucksPrice,
           price: calcPrice,
-          full_price: fullPrice,
           id: item.id,
-          image: item.images?.featured || item.images?.icon || item.images?.smallIcon
+          image: item.images?.featured || item.images?.icon || item.images?.smallIcon,
+          showcaseVideo: item.showcaseVideo || null,
+          related_items: item.granted || []
         });
       }
 
@@ -177,7 +171,6 @@ export async function GET() {
         cars.forEach(car => {
            const typeStr = car.type?.displayValue || "Voiture";
            const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
-           const fullPrice = calculateFullPrice(vbucksPrice);
 
            parsedItems.push({
              section,
@@ -186,7 +179,6 @@ export async function GET() {
              rarity: { value: car.rarity?.value || "Common" },
              vbucks: vbucksPrice,
              price: calcPrice,
-             full_price: fullPrice,
              id: car.id || car.vehicleId,
              image: car.images?.small || car.images?.large
            });

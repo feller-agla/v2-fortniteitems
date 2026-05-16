@@ -1,6 +1,7 @@
 "use client";
-import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export function ShopItem({ 
   id, 
@@ -12,8 +13,26 @@ export function ShopItem({
   type,
   rarity 
 }) {
-  const { addToCart, isDiscounted } = useCart();
+  const [paymentUrl, setPaymentUrl] = useState('');
   
+  // Load payment link dynamically
+  useEffect(() => {
+    const fetchPaymentLink = async () => {
+      try {
+        const res = await fetch(`/api/payment-links?vbucks=${vbucks}`);
+        const data = await res.json();
+        if (data.status === 'success' && data.link) {
+          setPaymentUrl(data.link);
+        }
+      } catch (err) {
+        console.error('Error fetching payment link:', err);
+        // Fallback to default link
+        setPaymentUrl(`https://votre-lien-de-paiement.com/default?vbucks=${vbucks}`);
+      }
+    };
+    fetchPaymentLink();
+  }, [vbucks]);
+  const isDiscounted = false;
   const displayPrice = isDiscounted ? price : (full_price || price * 1.5);
 
   // Basic color mapping based on rarity (can be expanded)
@@ -25,10 +44,6 @@ export function ShopItem({
       case 'uncommon': return "from-green-500/20 to-emerald-500/20";
       default: return "from-gray-500/20 to-slate-500/20";
     }
-  };
-
-  const handleAdd = () => {
-    addToCart({ id, name, price, full_price, vbucks, image, type: 'shop_item' });
   };
 
   return (
@@ -94,12 +109,14 @@ export function ShopItem({
           </div>
         </div>
         
-        <button 
-          onClick={handleAdd}
-          className="btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-2 sm:py-2.5 mt-2 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-colors border border-white/20 hover:border-white"
-        >
-          <span className="btn-fortnite-inner text-xs sm:text-sm font-semibold leading-none mt-1">AJOUTER</span>
-        </button>
+        <div className="w-full flex gap-2 mt-2">
+          <Link href={paymentUrl} target="_blank" className="btn-fortnite bg-fortnite-yellow text-black hover:bg-white w-2/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(200,200,0,0.8)] transition-all transform hover:-translate-y-1">
+            <span className="btn-fortnite-inner text-xs sm:text-sm font-bold leading-none mt-1">ACHETER</span>
+          </Link>
+          <Link href={`/shop/${encodeURIComponent(id)}`} className="btn-fortnite bg-white/10 text-white hover:bg-white hover:text-fortnite-blue w-1/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-all border border-white/20 hover:border-white">
+            <span className="btn-fortnite-inner text-xs sm:text-sm font-semibold leading-none mt-1">PLUS</span>
+          </Link>
+        </div>
       </div>
     </motion.div>
   );
