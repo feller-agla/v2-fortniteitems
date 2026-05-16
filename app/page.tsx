@@ -1,10 +1,15 @@
+"use client";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import { ProductCard } from "./components/ProductCard";
-
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { hr } from "framer-motion/client";
 export default function Home() {
   // Vos données (qui remplaceront product.js)
+  const [paymentUrl, setPaymentUrl] = useState('');
+  
   const products = [
     {
       id: 4,
@@ -12,29 +17,33 @@ export default function Home() {
       price: 39000,
       vbucks: 12500,
       image: "/assets/13500vbucks.png",
-      badge: "LE PLUS POPULAIRE 🔥",
-      isPopular: true
+      href: paymentUrl
     },
     {
       id: 3,
       name: "PACK 4500 V-BUCKS",
       price: 17000,
       vbucks: 4500,
-      image: "/assets/5000vbucks.png"
+      image: "/assets/5000vbucks.png",
+      href: paymentUrl
     },
     {
       id: 2,
       name: "PACK 2400 V-BUCKS",
       price: 9000,
       vbucks: 2400,
-      image: "/assets/2800vbucks.png"
+      image: "/assets/2800vbucks.png",
+      badge: "LE PLUS POPULAIRE 🔥",
+      isPopular: true,
+      href: paymentUrl
     },
     {
       id: 1,
       name: "PACK 800 V-BUCKS",
       price: 4000,
       vbucks: 800,
-      image: "/assets/1000vbucks.png"
+      image: "/assets/1000vbucks.png",
+      href: paymentUrl
     }
   ];
 

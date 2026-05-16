@@ -76,8 +76,8 @@ export default function ClientItemDetails({ item }) {
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* Visual section */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
-          <div className="relative w-full max-w-[400px] aspect-square rounded-2xl flex justify-center items-center mb-6">
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 relative">
+          <div className="relative w-full h-auto flex justify-center items-center mb-6">
             {/* Glow effect based on rarity */}
             <div className="absolute inset-0 blur-3xl opacity-30 mix-blend-screen rounded-full" 
                  style={{ backgroundColor: 'var(--color-rarity-epic)' }}></div>
@@ -85,7 +85,7 @@ export default function ClientItemDetails({ item }) {
             <img 
               src={mainImageUrl} 
               alt={activeItem.name} 
-              className="w-full h-full object-contain relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)]"
+              className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)]"
             />
           </div>
           
