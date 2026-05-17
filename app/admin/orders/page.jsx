@@ -2,6 +2,7 @@
 import { useState, useEffect, Fragment } from "react";
 import { formatLocaleDate } from "@/app/lib/datetime";
 import { getCustomerDisplayName } from "@/app/lib/customer-display";
+import { getAuthHeaders } from "@/app/lib/supabase";
 import { CheckCircleIcon, XMarkIcon, EyeIcon, ArrowPathIcon, ChevronDownIcon, ChevronUpIcon, ShoppingBagIcon, UserIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export default function AdminOrders() {
@@ -15,7 +16,8 @@ export default function AdminOrders() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/orders");
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/orders", { headers });
       if (!res.ok) throw new Error("Erreur lors de la récupération des commandes");
       const data = await res.json();
       setOrders(data);

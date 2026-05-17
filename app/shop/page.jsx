@@ -3,11 +3,13 @@ import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ShopItem } from "../components/ShopItem";
+import CheckoutModal from "../components/CheckoutModal";
 
 export default function ShopPage() {
   const [shopItems, setShopItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   
   // Filter States
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,7 +46,7 @@ export default function ShopPage() {
           id: item.id || `shop-${Math.random()}`,
           name: item.name || "Objet Inconnu",
           price: item.price || 0,
-          full_price: item.full_price || (item.price * 1.5),
+          full_price: item.full_price, /* (item.price * 1.5)*/
           vbucks: item.vbucks || 0,
           image: item.image || "/assets/1000vbucks.png",
           type: item.type || "Cosmetic",
@@ -186,6 +188,7 @@ export default function ShopPage() {
                       image={item.image}
                       type={item.type}
                       rarity={item.rarity}
+                      onBuy={() => setSelectedItem(item)}
                     />
                   ))}
                 </div>
@@ -197,6 +200,14 @@ export default function ShopPage() {
       </section>
 
       <Footer />
+
+      {/* Modal de checkout */}
+      {selectedItem && (
+        <CheckoutModal
+          product={selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </main>
   );
 }

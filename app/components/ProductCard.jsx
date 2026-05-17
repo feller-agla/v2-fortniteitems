@@ -1,20 +1,20 @@
 "use client";
-import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
 export function ProductCard({ 
-  id, 
   name, 
   price, 
-  vbucks, 
   image, 
   badge, 
-  isPopular 
+  isPopular,
+  href,
+  onBuy 
 }) {
-  const { addToCart } = useCart();
 
-  const handleAddToCart = () => {
-    addToCart({ id, name, price, vbucks, image, type: 'vbucks_pack' });
+  const handleClick = () => {
+    if (onBuy) {
+      onBuy(); // Ouvre le modal de checkout
+    }
   };
 
   return (
@@ -63,12 +63,21 @@ export function ProductCard({
         </div>
         
         <div className="p-2 sm:p-3 relative z-10">
-          <button 
-            onClick={handleAddToCart}
-            className="btn-fortnite bg-white hover:bg-gray-200 text-fortnite-blue w-full py-3 sm:py-4 text-lg sm:text-xl md:text-2xl"
-          >
-            <span className="btn-fortnite-inner font-semibold leading-none mt-1">ACHETER</span>
-          </button>
+          {href ? (
+            <button 
+              onClick={handleClick}
+              className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-3 sm:py-4 text-lg sm:text-xl md:text-2xl"
+            >
+              <span className="btn-fortnite-inner font-semibold leading-none mt-1">ACHETER →</span>
+            </button>
+          ) : (
+            <button 
+              disabled
+              className="btn-fortnite bg-gray-600 text-gray-400 w-full py-3 sm:py-4 text-lg sm:text-xl md:text-2xl cursor-not-allowed opacity-60"
+            >
+              <span className="btn-fortnite-inner font-semibold leading-none mt-1">BIENTÔT</span>
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

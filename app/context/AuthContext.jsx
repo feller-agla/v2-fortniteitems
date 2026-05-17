@@ -225,6 +225,7 @@ export function AuthProvider({ children }) {
   };
 
   const isAdmin = profile?.role === 'admin';
+  const isPartner = profile?.role === 'partner';
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
   const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Joueur';
 
@@ -242,6 +243,7 @@ export function AuthProvider({ children }) {
       signOut,
       verifyEmailOtp,
       isAdmin,
+      isPartner,
     }}>
       {children}
     </AuthContext.Provider>

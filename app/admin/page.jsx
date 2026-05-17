@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { formatLocaleDate } from "@/app/lib/datetime";
 import { getCustomerDisplayName } from "@/app/lib/customer-display";
+import { getAuthHeaders } from "@/app/lib/supabase";
 import { motion } from "framer-motion";
 import { 
   CurrencyDollarIcon, 
@@ -57,7 +58,8 @@ export default function AdminDashboard() {
         }
 
         // Fetch Recent Orders
-        const ordersRes = await fetch('/api/orders');
+        const authHeaders = await getAuthHeaders();
+        const ordersRes = await fetch('/api/orders', { headers: authHeaders });
         const ordersData = await ordersRes.json();
         if (Array.isArray(ordersData)) {
           setRecentOrders(ordersData.slice(0, 5).map((o) => {

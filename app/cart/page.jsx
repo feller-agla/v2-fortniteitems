@@ -85,7 +85,7 @@ export default function CartPage() {
       if (!res.ok || !data.payment_link) {
         throw new Error(data.error || "Erreur lors de la création du paiement.");
       }
-      // Redirect to Lygos payment
+      // Redirect to Monniz payment
       window.location.href = data.payment_link;
     } catch (err) {
       setStep("error");

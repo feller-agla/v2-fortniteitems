@@ -21,31 +21,25 @@ export async function GET() {
     console.log("[SHOP API] Cache expiré ou vide. Récupération des données depuis l'API Fortnite...");
     
     // Fonction de calcul du prix de vente
-    const calculateCustomPrice = (vbucks, type) => {
-      // Coût unitaire = 0,0038608€ par V-Bucks.
-      // const priceDollar = (vbucks * 5) + 500;
-      // const tauxDollarFCFA = 610; 
-      let priceFCFA = (vbucks * 5.5);
-      
-      
-      // priceFCFA = Math.ceil(priceFCFA / 500) * 500;
-      
-      // const t = (type || '').toLowerCase();
-      // let bonus = 0;
-      // if (t.includes('outfit') || t.includes('tenue') || t.includes('skin')) {
-      //   bonus = 1000;
-      //   priceFCFA += bonus;
-      // } else if (t.includes('emote') || t.includes('danse')) {
-      //   bonus = 500;
-      //   priceFCFA += bonus;
-      // }
-      
-      // if (priceFCFA < 5001) {
-      //   priceFCFA += 125;
-      // } else if (priceFCFA >= 5001 && priceFCFA < 10001) {
-      //   priceFCFA += 225;
-      // }
-      return priceFCFA;
+    const calculateCustomPrice = (vbucks) => {
+      let rawPrice = 0;
+    
+      if (!vbucks || vbucks == 0 || vbucks == null) return 0;
+      if(vbucks <= 500) {
+        rawPrice = vbucks * 6.5;
+      } else if (vbucks == 600) {
+        rawPrice = 3500;
+      } else if(500 < vbucks && vbucks <= 1000) {
+        rawPrice = vbucks * 5;
+      } else if(1000 < vbucks && vbucks <= 1500) {
+        rawPrice = vbucks * 4.6;
+      } else if(1500 < vbucks && vbucks <= 2000) {
+        rawPrice = vbucks * 4.25;
+      } else {
+        rawPrice = vbucks * 4;
+      }
+      //   ;
+      return Math.round(rawPrice / 500) * 500;
     };
 
     const url = "https://fortnite-api.com/v2/shop?language=fr                       ";
@@ -127,7 +121,7 @@ export async function GET() {
       if (entry.bundle || brItems.length > 1) {
         const bundleName = entry.bundle?.name || brItems.map(i => i.name).join(' + ').slice(0, 30) + '...';
         const bundleImage = entry.bundle?.image || entry.newDisplayAsset?.renderImages?.[0]?.image || brItems[0]?.images?.featured || brItems[0]?.images?.icon || '/assets/1000vbucks.png';
-        const calcPrice = calculateCustomPrice(vbucksPrice, "Pack");
+        const calcPrice = calculateCustomPrice(vbucksPrice);
 
         parsedItems.push({
           section,
@@ -148,8 +142,8 @@ export async function GET() {
       // 2. Objet Individuel
       if (brItems.length === 1) {
         const item = brItems[0];
-        const typeStr = item.type?.displayValue || item.type?.value || "Autres";
-        const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
+        // const typeStr = item.type?.displayValue || item.type?.value || "Autres";
+        const calcPrice = calculateCustomPrice(vbucksPrice);
 
         parsedItems.push({
           section,
@@ -170,7 +164,7 @@ export async function GET() {
       if (cars.length > 0) {
         cars.forEach(car => {
            const typeStr = car.type?.displayValue || "Voiture";
-           const calcPrice = calculateCustomPrice(vbucksPrice, typeStr);
+           const calcPrice = calculateCustomPrice(vbucksPrice);
 
            parsedItems.push({
              section,

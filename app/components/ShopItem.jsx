@@ -1,7 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
 export function ShopItem({ 
   id, 
@@ -11,31 +10,13 @@ export function ShopItem({
   vbucks, 
   image, 
   type,
-  rarity 
+  rarity,
+  onBuy
 }) {
-  const [paymentUrl, setPaymentUrl] = useState('');
-  
-  // Load payment link dynamically
-  useEffect(() => {
-    const fetchPaymentLink = async () => {
-      try {
-        const res = await fetch(`/api/payment-links?vbucks=${vbucks}`);
-        const data = await res.json();
-        if (data.status === 'success' && data.link) {
-          setPaymentUrl(data.link);
-        }
-      } catch (err) {
-        console.error('Error fetching payment link:', err);
-        // Fallback to default link
-        setPaymentUrl(`https://votre-lien-de-paiement.com/default?vbucks=${vbucks}`);
-      }
-    };
-    fetchPaymentLink();
-  }, [vbucks]);
   const isDiscounted = false;
-  const displayPrice = isDiscounted ? price : (full_price || price * 1.5);
+  const displayPrice = isDiscounted ? price : (full_price || price * 1);
 
-  // Basic color mapping based on rarity (can be expanded)
+  // Basic color mapping based on rarity
   const getRarityGradient = () => {
     switch(rarity?.toLowerCase()) {
       case 'legendary': return "from-orange-500/20 to-yellow-500/20";
@@ -43,6 +24,12 @@ export function ShopItem({
       case 'rare': return "from-blue-500/20 to-cyan-500/20";
       case 'uncommon': return "from-green-500/20 to-emerald-500/20";
       default: return "from-gray-500/20 to-slate-500/20";
+    }
+  };
+
+  const handleBuy = () => {
+    if (onBuy) {
+      onBuy();
     }
   };
 
@@ -84,7 +71,7 @@ export function ShopItem({
       </div>
 
       <div className="z-10 mt-auto flex flex-col items-center bg-[#051024]/80 p-2 sm:p-3 rounded-b-lg relative overflow-hidden">
-        {/* Shine effect on bottom panel hover - kept simple */}
+        {/* Shine effect on bottom panel hover */}
         <div className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-[-20deg] group-hover:animate-[shine_1s_ease-in-out]"></div>
 
         <h3 className="text-sm sm:text-lg font-display font-normal text-white mb-1 tracking-wide text-center line-clamp-1 leading-tight text-3d">{name.toUpperCase()}</h3>
@@ -96,7 +83,7 @@ export function ShopItem({
           <div className="flex flex-col items-center w-full gap-1">
             {isDiscounted && (
               <span className="text-[10px] sm:text-xs text-rarity-marvel font-bold line-through opacity-70">
-                {(full_price || price * 1.5).toLocaleString('fr-FR')} FCFA
+                {(full_price || price * 1.5).toLocaleString('fr-FR')} FCFAsss
               </span>
             )}
             <span className={`text-sm sm:text-lg font-bold font-sans w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] border transition-all duration-500 ${
@@ -110,9 +97,12 @@ export function ShopItem({
         </div>
         
         <div className="w-full flex gap-2 mt-2">
-          <Link href={paymentUrl} target="_blank" className="btn-fortnite bg-fortnite-yellow text-black hover:bg-white w-2/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(200,200,0,0.8)] transition-all transform hover:-translate-y-1">
+          <button 
+            onClick={handleBuy}
+            className="btn-fortnite bg-fortnite-yellow text-black hover:bg-white w-2/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(200,200,0,0.8)] transition-all transform hover:-translate-y-1"
+          >
             <span className="btn-fortnite-inner text-xs sm:text-sm font-bold leading-none mt-1">ACHETER</span>
-          </Link>
+          </button>
           <Link href={`/shop/${encodeURIComponent(id)}`} className="btn-fortnite bg-white/10 text-white hover:bg-white hover:text-fortnite-blue w-1/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-all border border-white/20 hover:border-white">
             <span className="btn-fortnite-inner text-xs sm:text-sm font-semibold leading-none mt-1">PLUS</span>
           </Link>

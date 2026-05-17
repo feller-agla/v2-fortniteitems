@@ -1,40 +1,45 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/app/lib/supabase';
 
 export const runtime = 'edge';
 
-// Default payment links embedded for Edge Runtime compatibility (no file system access)
-const DEFAULT_PAYMENT_LINKS = {
-  "200": "https://votre-lien-de-paiement.com/prix200",
-  "250": "https://votre-lien-de-paiement.com/prix250",
-  "300": "https://votre-lien-de-paiement.com/prix300",
-  "350": "https://votre-lien-de-paiement.com/prix350",
-  "400": "https://votre-lien-de-paiement.com/prix400",
-  "450": "https://votre-lien-de-paiement.com/prix450",
-  "500": "https://votre-lien-de-paiement.com/prix500",
-  "600": "https://votre-lien-de-paiement.com/prix600",
-  "700": "https://votre-lien-de-paiement.com/prix700",
-  "750": "https://votre-lien-de-paiement.com/prix750",
+// Fallback links si la table n'existe pas encore
+const FALLBACK_LINKS = {
   "800": "https://monniz.com/p/S19BibXe",
   "1000": "https://monniz.com/p/MAXD8fo0",
-  "1100": "https://votre-lien-de-paiement.com/prix1100",
   "1200": "https://monniz.com/p/sHa2qRlq",
-  "1300": "https://votre-lien-de-paiement.com/prix1300",
-  "1400": "https://votre-lien-de-paiement.com/prix1400",
   "1500": "https://monniz.com/p/4vmSNBI2",
-  "1600": "https://votre-lien-de-paiement.com/prix1600",
-  "1800": "https://votre-lien-de-paiement.com/prix1800",
-  "2000": "https://votre-lien-de-paiement.com/prix2000",
-  "2200": "https://votre-lien-de-paiement.com/prix2200",
   "2400": "https://monniz.com/p/WAJUSKmd",
-  "2700": "https://votre-lien-de-paiement.com/prix2700",
-  "2800": "https://votre-lien-de-paiement.com/prix2800",
-  "3500": "https://votre-lien-de-paiement.com/prix3500",
-  "4200": "https://monniz.com/p/iRRipfeV"
+  "4200": "https://monniz.com/p/iRRipfeV",
 };
+
+/** Charge les liens depuis Supabase, fallback sur les constantes. */
+async function loadLinks() {
+  try {
+    const admin = supabaseAdmin();
+    const { data, error } = await admin
+      .from('payment_links')
+      .select('vbucks_amount, url')
+      .order('vbucks_amount', { ascending: true });
+
+    if (error) throw error;
+    if (!data || data.length === 0) return FALLBACK_LINKS;
+
+    const links = {};
+    data.forEach((row) => {
+      links[String(row.vbucks_amount)] = row.url;
+    });
+    return links;
+  } catch (err) {
+    console.warn('[admin/payment-links] Fallback to hardcoded links:', err.message);
+    return FALLBACK_LINKS;
+  }
+}
 
 export async function GET() {
   try {
-    return NextResponse.json({ status: 'success', data: DEFAULT_PAYMENT_LINKS });
+    const links = await loadLinks();
+    return NextResponse.json({ status: 'success', data: links });
   } catch (error) {
     console.error('Payment links API error:', error);
     return NextResponse.json(
@@ -56,17 +61,48 @@ export async function POST(request) {
       );
     }
 
-    // On Edge Runtime (Cloudflare Pages), we can't persist to filesystem
-    // For production, consider using Cloudflare KV Storage
+    const admin = supabaseAdmin();
+
+    // Supprimer tous les liens existants
+    const { error: deleteError } = await admin
+      .from('payment_links')
+      .delete()
+      .gte('vbucks_amount', 0); // delete all rows
+
+    if (deleteError) {
+      console.error('[admin/payment-links] Delete error:', deleteError);
+      throw deleteError;
+    }
+
+    // Insérer les nouveaux liens
+    const rows = Object.entries(links)
+      .filter(([, url]) => url && typeof url === 'string' && url.startsWith('http'))
+      .map(([vbucks, url]) => ({
+        vbucks_amount: parseInt(vbucks, 10),
+        url: url.trim(),
+        updated_at: new Date().toISOString(),
+      }));
+
+    if (rows.length > 0) {
+      const { error: insertError } = await admin
+        .from('payment_links')
+        .insert(rows);
+
+      if (insertError) {
+        console.error('[admin/payment-links] Insert error:', insertError);
+        throw insertError;
+      }
+    }
+
     return NextResponse.json({
       status: 'success',
-      message: 'Payment links updated (persisted for this session)',
+      message: `${rows.length} liens de paiement sauvegardés`,
       data: links
     });
   } catch (error) {
     console.error('Payment links API error:', error);
     return NextResponse.json(
-      { status: 'error', message: 'Failed to update payment links' },
+      { status: 'error', message: `Erreur: ${error.message}` },
       { status: 500 }
     );
   }

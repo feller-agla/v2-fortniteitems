@@ -10,7 +10,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { unreadCount } = useUnreadMessages();
-  const { user, profile, signOut, loading, avatarUrl, displayName, isAdmin } = useAuth();
+  const { user, profile, signOut, loading, avatarUrl, displayName, isAdmin, isPartner } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -91,6 +91,17 @@ export default function Navbar() {
                         onClick={() => setShowUserMenu(false)}
                       >
                         🛡️ Panel Admin
+                      </Link>
+                    )}
+
+                    {/* Partner Dashboard Link */}
+                    {isPartner && (
+                      <Link
+                        href="/partner"
+                        className="block px-4 py-3 text-green-400 font-bold text-sm uppercase tracking-wider hover:bg-green-500/10 transition-colors border-b border-white/5 bg-white/5"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Espace Partenaire
                       </Link>
                     )}
 

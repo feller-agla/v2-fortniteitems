@@ -1,51 +1,56 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/app/lib/supabase';
 
 export const runtime = 'edge';
 
-// Default payment links embedded for Edge Runtime compatibility (no file system access)
-const DEFAULT_PAYMENT_LINKS = {
-  "200": "https://votre-lien-de-paiement.com/prix200",
-  "250": "https://votre-lien-de-paiement.com/prix250",
-  "300": "https://votre-lien-de-paiement.com/prix300",
-  "350": "https://votre-lien-de-paiement.com/prix350",
-  "400": "https://votre-lien-de-paiement.com/prix400",
-  "450": "https://votre-lien-de-paiement.com/prix450",
-  "500": "https://votre-lien-de-paiement.com/prix500",
-  "600": "https://votre-lien-de-paiement.com/prix600",
-  "700": "https://votre-lien-de-paiement.com/prix700",
-  "750": "https://votre-lien-de-paiement.com/prix750",
+// Fallback links si la table n'existe pas encore
+const FALLBACK_LINKS = {
   "800": "https://monniz.com/p/S19BibXe",
   "1000": "https://monniz.com/p/MAXD8fo0",
-  "1100": "https://votre-lien-de-paiement.com/prix1100",
   "1200": "https://monniz.com/p/sHa2qRlq",
-  "1300": "https://votre-lien-de-paiement.com/prix1300",
-  "1400": "https://votre-lien-de-paiement.com/prix1400",
   "1500": "https://monniz.com/p/4vmSNBI2",
-  "1600": "https://votre-lien-de-paiement.com/prix1600",
-  "1800": "https://votre-lien-de-paiement.com/prix1800",
-  "2000": "https://votre-lien-de-paiement.com/prix2000",
-  "2200": "https://votre-lien-de-paiement.com/prix2200",
   "2400": "https://monniz.com/p/WAJUSKmd",
-  "2700": "https://votre-lien-de-paiement.com/prix2700",
-  "2800": "https://votre-lien-de-paiement.com/prix2800",
-  "3500": "https://votre-lien-de-paiement.com/prix3500",
-  "4200": "https://monniz.com/p/iRRipfeV"
+  "4200": "https://monniz.com/p/iRRipfeV",
 };
+
+/** Charge les liens depuis Supabase, fallback sur les constantes. */
+async function loadLinks() {
+  try {
+    const admin = supabaseAdmin();
+    const { data, error } = await admin
+      .from('payment_links')
+      .select('vbucks_amount, url')
+      .order('vbucks_amount', { ascending: true });
+
+    if (error) throw error;
+    if (!data || data.length === 0) return FALLBACK_LINKS;
+
+    const links = {};
+    data.forEach((row) => {
+      links[String(row.vbucks_amount)] = row.url;
+    });
+    return links;
+  } catch (err) {
+    console.warn('[payment-links] Fallback to hardcoded links:', err.message);
+    return FALLBACK_LINKS;
+  }
+}
 
 export async function GET(request) {
   try {
+    const links = await loadLinks();
     const { searchParams } = new URL(request.url);
     const vbucks = searchParams.get('vbucks');
 
     if (vbucks) {
-      const link = DEFAULT_PAYMENT_LINKS[vbucks];
+      const link = links[vbucks];
       if (link) {
         return NextResponse.json({ status: 'success', link });
       }
       return NextResponse.json({ status: 'error', message: 'No link found for this amount' }, { status: 404 });
     }
 
-    return NextResponse.json({ status: 'success', data: DEFAULT_PAYMENT_LINKS });
+    return NextResponse.json({ status: 'success', data: links });
   } catch (error) {
     console.error('Payment links API error:', error);
     return NextResponse.json(

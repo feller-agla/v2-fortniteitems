@@ -3,18 +3,21 @@ export const runtime = 'edge';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase';
 
-function getUserIdFromAuthorization(request) {
+/**
+ * Verify JWT via Supabase auth.getUser() — returns userId or null.
+ * This actually validates the token signature server-side (not just decode).
+ */
+async function getVerifiedUserId(request) {
   const auth = request.headers.get('Authorization');
   if (!auth?.startsWith('Bearer ')) return null;
   const token = auth.slice(7).trim();
   if (!token) return null;
 
   try {
-    // Decode payload only (no signature verification)
-    const payload = token.split('.')[1];
-    if (!payload) return null;
-    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    return decoded.sub || null;
+    const admin = supabaseAdmin();
+    const { data: { user }, error } = await admin.auth.getUser(token);
+    if (error || !user) return null;
+    return user.id;
   } catch {
     return null;
   }
@@ -44,7 +47,7 @@ function computeTotals(items) {
 
 export async function GET(request) {
   try {
-    const userId = getUserIdFromAuthorization(request);
+    const userId = await getVerifiedUserId(request);
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const admin = supabaseAdmin();
@@ -79,7 +82,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userId = getUserIdFromAuthorization(request);
+    const userId = await getVerifiedUserId(request);
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
@@ -180,4 +183,3 @@ export async function POST(request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-

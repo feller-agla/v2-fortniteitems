@@ -1,49 +1,57 @@
 "use client";
+import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import { ProductCard } from "./components/ProductCard";
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { hr } from "framer-motion/client";
+import CheckoutModal from "./components/CheckoutModal";
+
 export default function Home() {
-  // Vos données (qui remplaceront product.js)
-  const [paymentUrl, setPaymentUrl] = useState('');
-  
+  const [selectedProduct, setSelectedProduct] = useState<Record<string, unknown> | null>(null);
+
+  // Liens de paiement Monniz (par montant V-Bucks)
   const products = [
     {
-      id: 4,
+      id: 1,
       name: "PACK 12500 V-BUCKS",
       price: 39000,
       vbucks: 12500,
       image: "/assets/13500vbucks.png",
-      href: paymentUrl
+      href: "https://monniz.com/p/PBu0QYAE",
     },
     {
-      id: 3,
+      id: 2,
       name: "PACK 4500 V-BUCKS",
       price: 17000,
       vbucks: 4500,
       image: "/assets/5000vbucks.png",
-      href: paymentUrl
+      href: "https://monniz.com/p/iRRipfeV",
     },
     {
-      id: 2,
+      id: 3,
       name: "PACK 2400 V-BUCKS",
       price: 9000,
       vbucks: 2400,
       image: "/assets/2800vbucks.png",
       badge: "LE PLUS POPULAIRE 🔥",
       isPopular: true,
-      href: paymentUrl
+      href: "https://monniz.com/p/WAJUSKmd",
     },
     {
-      id: 1,
+      id: 4,
       name: "PACK 800 V-BUCKS",
       price: 4000,
       vbucks: 800,
       image: "/assets/1000vbucks.png",
-      href: paymentUrl
+      href: "https://monniz.com/p/S19BibXe",
+    },
+    {
+      id: 5,
+      name: "Clube Fortnite",
+      price: 5000,
+      //vbucks: 1000,
+      image: "/assets/crew.png",
+      href: "https://monniz.com/p/HqV2FoHA",
     }
   ];
 
@@ -70,7 +78,7 @@ export default function Home() {
               PACKS <span className="text-fortnite-yellow text-3d-yellow relative z-10">DISPONIBLES</span>
             </h3>
             <p className="text-gray-300/90 font-sans text-base sm:text-xl max-w-2xl mx-auto font-medium tracking-wide">
-              SÉCURISEZ VOS V-BUCKS AU MEILLEUR PRIX. LIVRAISON INSTANTANÉE SUR VOTRE COMPTE.
+              SÉCURISEZ VOS V-BUCKS AU MEILLEUR PRIX. LIVRAISON 30-40 minutes SUR VOTRE COMPTE.
             </p>
           </div>
 
@@ -78,13 +86,13 @@ export default function Home() {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                id={product.id}
                 name={product.name}
                 price={product.price}
-                vbucks={product.vbucks}
                 image={product.image}
                 badge={product.badge}
                 isPopular={product.isPopular}
+                href={product.href}
+                onBuy={() => setSelectedProduct(product)}
               />
             ))}
           </div>
@@ -93,6 +101,14 @@ export default function Home() {
       </section>
       
       <Footer />
+
+      {/* Modal de checkout */}
+      {selectedProduct && (
+        <CheckoutModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
     </main>
   );
 }
