@@ -1,54 +1,62 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ClientItemDetails from "./ClientItemDetails";
 
-export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
+export default function ItemDetailsPage() {
+  const params = useParams();
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-async function getItemDetails(id) {
-  try {
-    // Utiliser une URL complète qui fonctionne en production
-    // En local, NEXT_PUBLIC_BASE_URL est défini dans .env.local
-    // En production (Cloudflare Pages), on utilise lamashop.store
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lamashop.store';
-    const res = await fetch(`${baseUrl}/api/shop`, { 
-      cache: "no-store",
-      headers: {
-        'Accept': 'application/json',
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        let itemId = params.id;
+        // Decode if needed
+        if (itemId && itemId.includes('%')) {
+          try { itemId = decodeURIComponent(itemId); } catch {}
+        }
+
+        const res = await fetch("/api/shop");
+        if (!res.ok) throw new Error("Erreur API");
+        const json = await res.json();
+        const items = json.data || [];
+
+        const found = items.find(i => i.id === itemId);
+        if (found) {
+          setItem(found);
+        } else {
+          setError(true);
+        }
+      } catch (err) {
+        console.error("Error fetching item:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data.find(item => item.id === id) || null;
-  } catch (err) {
-    console.error('Error fetching item details:', err);
-    return null;
-  }
-}
+    };
 
-function getBaseUrl() {
-  return process.env.NEXT_PUBLIC_BASE_URL || 'https://lamashop.store';
-}
+    if (params.id) fetchItem();
+  }, [params.id]);
 
-export default async function ItemDetailsPage({ params }) {
-  const resolvedParams = await params;
-  // Next.js passes the route segment as-is, already decoded by the router
-  // For safety, ensure we handle both encoded and non-encoded IDs
-  let itemId = resolvedParams.id;
-  
-  // Try to decode if it looks encoded (contains %xx patterns)
-  if (itemId.includes('%')) {
-    try {
-      itemId = decodeURIComponent(itemId);
-    } catch (e) {
-      // If decoding fails, use as-is
-    }
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#091C3E] text-white">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center h-[70vh]">
+          <div className="w-16 h-16 border-8 border-[#0c1a3b] border-t-fortnite-yellow rounded-full animate-spin mb-6"></div>
+          <p className="text-fortnite-yellow font-display text-2xl animate-pulse tracking-widest">CHARGEMENT...</p>
+        </div>
+        <Footer />
+      </main>
+    );
   }
-  
-  const item = await getItemDetails(itemId);
-  
-  if (!item) {
+
+  if (error || !item) {
     return (
       <main className="min-h-screen bg-[#091C3E] text-white">
         <Navbar />
@@ -71,9 +79,7 @@ export default async function ItemDetailsPage({ params }) {
       </div>
 
       <Navbar />
-      
       <ClientItemDetails item={item} />
-
       <Footer />
     </main>
   );
