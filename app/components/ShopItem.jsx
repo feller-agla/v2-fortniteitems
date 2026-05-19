@@ -103,7 +103,7 @@ export function ShopItem({
           >
             <span className="btn-fortnite-inner text-xs sm:text-sm font-bold leading-none mt-1">ACHETER</span>
           </button>
-          <Link href={`/shop/${encodeURIComponent(id)}`} className="btn-fortnite bg-white/10 text-white hover:bg-white hover:text-fortnite-blue w-1/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-all border border-white/20 hover:border-white">
+          <Link href={`/shop/detail?id=${encodeURIComponent(id)}`} className="btn-fortnite bg-white/10 text-white hover:bg-white hover:text-fortnite-blue w-1/3 py-2 sm:py-2.5 shadow-[0_4px_0_rgba(0,0,0,0.4)] transition-all border border-white/20 hover:border-white">
             <span className="btn-fortnite-inner text-xs sm:text-sm font-semibold leading-none mt-1">PLUS</span>
           </Link>
         </div>

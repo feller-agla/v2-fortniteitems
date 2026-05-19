@@ -1,26 +1,30 @@
 "use client";
 
-export const runtime = 'edge';
-
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ClientItemDetails from "./ClientItemDetails";
 import Link from "next/link";
 
-export default function ItemDetailsPage() {
-  const params = useParams();
+function ItemDetailsContent() {
+  const searchParams = useSearchParams();
+  const itemIdParam = searchParams.get("id");
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
+      if (!itemIdParam) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+      
       try {
-        // Décoder l'ID du paramètre URL
-        let itemId = params.id;
-        if (itemId?.includes('%')) {
+        let itemId = itemIdParam;
+        if (itemId.includes('%')) {
           try { itemId = decodeURIComponent(itemId); } catch {}
         }
 
@@ -32,8 +36,8 @@ export default function ItemDetailsPage() {
 
         // Chercher l'item par ID (essai exact puis fallback décodé)
         const found = items.find(i => i.id === itemId)
-          || items.find(i => encodeURIComponent(i.id) === params.id)
-          || items.find(i => i.id === decodeURIComponent(params.id));
+          || items.find(i => encodeURIComponent(i.id) === itemIdParam)
+          || items.find(i => i.id === decodeURIComponent(itemIdParam));
 
         if (found) {
           setItem(found);
@@ -48,35 +52,31 @@ export default function ItemDetailsPage() {
       }
     };
 
-    if (params.id) fetchItem();
-  }, [params.id]);
+    fetchItem();
+  }, [itemIdParam]);
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#091C3E] text-white">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center h-[70vh]">
-          <div className="w-16 h-16 border-8 border-[#0c1a3b] border-t-fortnite-yellow rounded-full animate-spin mb-6"></div>
-          <p className="text-fortnite-yellow font-display text-2xl animate-pulse tracking-widest">CHARGEMENT...</p>
-        </div>
-        <Footer />
-      </main>
+      <div className="flex flex-col items-center justify-center h-[70vh]">
+        <div className="w-16 h-16 border-8 border-[#0c1a3b] border-t-fortnite-yellow rounded-full animate-spin mb-6"></div>
+        <p className="text-fortnite-yellow font-display text-2xl animate-pulse tracking-widest">CHARGEMENT...</p>
+      </div>
     );
   }
 
   if (error || !item) {
     return (
-      <main className="min-h-screen bg-[#091C3E] text-white">
-        <Navbar />
-        <div className="pt-40 text-center pb-40">
-          <h1 className="text-4xl font-display mb-4">OBJET INTROUVABLE</h1>
-          <Link href="/shop" className="text-[#31BBE6] underline font-semibold">Retour à la boutique</Link>
-        </div>
-        <Footer />
-      </main>
+      <div className="pt-40 text-center pb-40">
+        <h1 className="text-4xl font-display mb-4">OBJET INTROUVABLE</h1>
+        <Link href="/shop" className="text-[#31BBE6] underline font-semibold">Retour à la boutique</Link>
+      </div>
     );
   }
 
+  return <ClientItemDetails item={item} />;
+}
+
+export default function ItemDetailsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#091C3E] to-[#122A59] text-white overflow-x-hidden pt-[120px] pb-[60px] relative">
       {/* Animated BG */}
@@ -87,7 +87,17 @@ export default function ItemDetailsPage() {
       </div>
 
       <Navbar />
-      <ClientItemDetails item={item} />
+      
+      {/* Enveloppement Suspense obligatoire pour useSearchParams en static export/build */}
+      <Suspense fallback={
+        <div className="flex flex-col items-center justify-center h-[70vh]">
+          <div className="w-16 h-16 border-8 border-[#0c1a3b] border-t-fortnite-yellow rounded-full animate-spin mb-6"></div>
+          <p className="text-fortnite-yellow font-display text-2xl animate-pulse tracking-widest">CHARGEMENT...</p>
+        </div>
+      }>
+        <ItemDetailsContent />
+      </Suspense>
+
       <Footer />
     </main>
   );
