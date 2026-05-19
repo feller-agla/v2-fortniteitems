@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ClientItemDetails from "./ClientItemDetails";
+import Link from "next/link";
 
 export default function ItemDetailsPage() {
   const params = useParams();
@@ -15,18 +16,23 @@ export default function ItemDetailsPage() {
   useEffect(() => {
     const fetchItem = async () => {
       try {
+        // Décoder l'ID du paramètre URL
         let itemId = params.id;
-        // Decode if needed
-        if (itemId && itemId.includes('%')) {
+        if (itemId?.includes('%')) {
           try { itemId = decodeURIComponent(itemId); } catch {}
         }
 
         const res = await fetch("/api/shop");
         if (!res.ok) throw new Error("Erreur API");
+
         const json = await res.json();
         const items = json.data || [];
 
-        const found = items.find(i => i.id === itemId);
+        // Chercher l'item par ID (essai exact puis fallback décodé)
+        const found = items.find(i => i.id === itemId)
+          || items.find(i => encodeURIComponent(i.id) === params.id)
+          || items.find(i => i.id === decodeURIComponent(params.id));
+
         if (found) {
           setItem(found);
         } else {
@@ -62,7 +68,7 @@ export default function ItemDetailsPage() {
         <Navbar />
         <div className="pt-40 text-center pb-40">
           <h1 className="text-4xl font-display mb-4">OBJET INTROUVABLE</h1>
-          <a href="/shop" className="text-[#31BBE6] underline font-semibold">Retour à la boutique</a>
+          <Link href="/shop" className="text-[#31BBE6] underline font-semibold">Retour à la boutique</Link>
         </div>
         <Footer />
       </main>
