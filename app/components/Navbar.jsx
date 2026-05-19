@@ -167,6 +167,16 @@ export default function Navbar() {
                         🛡️ PANEL ADMIN
                       </Link>
                     )}
+
+                    {isPartner && (
+                      <Link
+                        href="/partner"
+                        className="block px-5 py-3 text-green-400 font-medium text-base uppercase tracking-wider hover:bg-green-500/10 transition-colors border-b border-white/5 bg-white/5 text-center"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        📊 ESPACE PARTENAIRE
+                      </Link>
+                    )}
                   </div>
 
                   {/* Sign Out Action */}
