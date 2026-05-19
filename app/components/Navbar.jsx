@@ -38,18 +38,24 @@ export default function Navbar() {
         </Link>
         
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center space-x-6 lg:space-x-10 font-display text-xl tracking-wider">
-          <Link href="/#home" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block">ACCUEIL</Link>
-          <Link href="/#products" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block">V-BUCKS</Link>
-          <Link href="/shop" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block">BOUTIQUE</Link>
-          <Link href="/orders" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block">SUIVI</Link>
+        <div className="hidden md:flex items-center space-x-4 lg:space-x-8 xl:space-x-10 font-display text-lg xl:text-xl tracking-wider shrink-0 flex-nowrap">
+          <Link href="/#home" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">ACCUEIL</Link>
+          <Link href="/#products" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">V-BUCKS</Link>
+          <Link href="/shop" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">BOUTIQUE</Link>
+          <Link href="/orders" className="text-white hover:text-fortnite-yellow transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">SUIVI</Link>
           {user && (
-            <Link href="/messages" className="text-fortnite-yellow hover:text-white transition-colors text-3d hover:translate-y-[-2px] inline-block relative group/msg">
+            <Link href="/messages" className="text-fortnite-yellow hover:text-white transition-colors text-3d hover:translate-y-[-2px] inline-block relative group/msg whitespace-nowrap">
               MESSAGES
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-4 w-2 h-2 bg-rarity-marvel rounded-full animate-pulse shadow-[0_0_10px_rgba(255,0,0,0.8)]"></span>
               )}
             </Link>
+          )}
+          {isPartner && (
+            <Link href="/partner" className="text-green-400 hover:text-white transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">PARTENAIRE</Link>
+          )}
+          {(profile?.role === 'admin' || isAdmin) && (
+            <Link href="/admin" className="text-fortnite-yellow hover:text-white transition-colors text-3d hover:translate-y-[-2px] inline-block whitespace-nowrap">ADMIN</Link>
           )}
         </div>
 
@@ -81,39 +87,7 @@ export default function Navbar() {
 
                {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-[270px] sm:w-[300px] bg-[#051024] border-2 border-[#1A3E7A] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8)] overflow-hidden z-50">
-                  {/* Desktop quick links */}
-                  <div className="hidden md:block">
-                    {/* Admin Panel Link */}
-                    {(profile?.role === 'admin' || isAdmin) && (
-                      <Link
-                        href="/admin"
-                        className="block px-4 py-3 text-fortnite-yellow font-bold text-sm uppercase tracking-wider hover:bg-fortnite-yellow/10 transition-colors border-b border-white/5 bg-white/5"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        🛡️ Panel Admin
-                      </Link>
-                    )}
 
-                    {/* Partner Dashboard Link */}
-                    {isPartner && (
-                      <Link
-                        href="/partner"
-                        className="block px-4 py-3 text-green-400 font-bold text-sm uppercase tracking-wider hover:bg-green-500/10 transition-colors border-b border-white/5 bg-white/5"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Espace Partenaire
-                      </Link>
-                    )}
-
-                    {/* Regular Links */}
-                    <Link
-                      href="/orders"
-                      className="block px-4 py-3 text-white font-bold text-sm uppercase tracking-wider hover:bg-white/5 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      Mes commandes
-                    </Link>
-                  </div>
 
                   {/* Mobile full menu */}
                   <div className="md:hidden">

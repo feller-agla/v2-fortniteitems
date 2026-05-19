@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { 
   ChatBubbleLeftRightIcon, 
   PaperAirplaneIcon, 
-  UserCircleIcon,
   ArrowPathIcon,
   ShoppingBagIcon,
   InboxIcon,
@@ -43,12 +42,30 @@ function UserMessagesContent() {
     }
   }, [queryOrderId]);
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom when messages change, but without affecting window scroll
+  const prevLengthRef = useRef(0);
+  const prevOrderIdRef = useRef(null);
+
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (!selectedOrderId) {
+      prevLengthRef.current = 0;
+      prevOrderIdRef.current = null;
+      return;
     }
-  }, [messages]);
+
+    const hasOrderIdChanged = prevOrderIdRef.current !== selectedOrderId;
+    const hasNewMessages = messages.length > prevLengthRef.current;
+
+    if (scrollRef.current && (hasOrderIdChanged || hasNewMessages)) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: hasOrderIdChanged ? 'auto' : 'smooth'
+      });
+    }
+
+    prevLengthRef.current = messages.length;
+    prevOrderIdRef.current = selectedOrderId;
+  }, [messages, selectedOrderId]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -197,13 +214,13 @@ function UserMessagesContent() {
   if (authLoading) return null;
 
   return (
-    <main className="min-h-screen bg-[#091C3E] text-white overflow-hidden flex flex-col relative">
+    <main className="min-h-screen bg-[#091C3E] text-white flex flex-col relative">
       {/* Background radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(26,62,122,0.3)_0%,transparent_70%)] pointer-events-none" />
       
       <div className="flex-none relative z-50"><Navbar /></div>
 
-      <div className="flex-1 container mx-auto px-0 md:px-4 pt-24 md:pt-40 pb-4 md:pb-10 flex flex-col md:flex-row gap-0 md:gap-6 overflow-hidden relative z-10">
+      <div className="h-[calc(100vh-100px)] min-h-[680px] max-h-[1000px] container mx-auto px-0 md:px-4 pt-24 md:pt-28 pb-4 flex flex-col md:flex-row gap-0 md:gap-6 overflow-hidden relative z-10">
         
         {/* Sidebar: Orders List */}
         <div className={`w-full md:w-80 lg:w-96 flex flex-col bg-[#051024]/95 backdrop-blur-md md:rounded-2xl border-x-0 md:border-2 border-[#1A3E7A] shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all duration-300 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
@@ -220,7 +237,7 @@ function UserMessagesContent() {
             </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+          <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar relative">
             {fetchingOrders && orders.length === 0 ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                 <div className="w-12 h-12 border-4 border-fortnite-yellow border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(241,241,43,0.3)]"></div>
@@ -330,7 +347,7 @@ function UserMessagesContent() {
               </div>
 
               {/* Messages List Area */}
-              <div className="flex-1 p-4 md:p-8 overflow-y-auto space-y-8 custom-scrollbar bg-transparent relative z-10">
+              <div ref={scrollRef} className="flex-1 p-4 md:p-8 overflow-y-auto overscroll-contain space-y-8 custom-scrollbar bg-transparent relative z-10">
                 {groupedMessages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full opacity-20 grayscale select-none">
                     <ChatBubbleLeftRightIcon className="w-24 h-24 mb-6" />
