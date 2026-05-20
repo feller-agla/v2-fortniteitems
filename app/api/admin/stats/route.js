@@ -12,6 +12,30 @@ function startOfCurrentMonthIso() {
   return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 }
 
+function getPartnerGainForItem(item) {
+  const vbucks = Number(item.vbucks) || 0;
+  const lamasPrice = Number(item.price) || 0;
+  const quantity = Number(item.quantity) || 1;
+
+  let percentage = 0.05; // Palier 1 : 5%
+  if (vbucks >= 1000 && vbucks <= 1499) {
+    percentage = 0.07; // Palier 2 : 7%
+  } else if (vbucks >= 1500) {
+    percentage = 0.10; // Palier 3 : 10%
+  }
+
+  return lamasPrice * percentage * quantity;
+}
+
+function calculateOrderEarnings(order) {
+  const items = order.items_data || [];
+  let totalEarnings = 0;
+  for (const item of items) {
+    totalEarnings += getPartnerGainForItem(item);
+  }
+  return Math.round(totalEarnings);
+}
+
 export async function GET() {
   try {
     const adminClient = supabaseAdmin();
@@ -24,7 +48,7 @@ export async function GET() {
     ] = await Promise.all([
       adminClient
         .from('orders')
-        .select('amount, status, customer_data')
+        .select('amount, status, customer_data, items_data')
         .gte('created_at', firstDayOfMonth),
       adminClient
         .from('orders')
@@ -44,7 +68,12 @@ export async function GET() {
 
     const monthlyRevenue = orders
       .filter((o) => deliveredSet.has(o.status))
-      .reduce((sum, o) => sum + Number(o.amount || 0), 0);
+      .reduce((sum, o) => {
+        const promoCode = o.customer_data?.promoCode;
+        const sonGain = promoCode ? calculateOrderEarnings(o) : 0;
+        const monGain = Math.max(0, Number(o.amount || 0) - sonGain);
+        return sum + monGain;
+      }, 0);
 
     // Nouveaux comptes (profils) ce mois ; repli si la table profiles n’est pas dispo
     let newClients = typeof newProfilesCount === 'number' ? newProfilesCount : 0;

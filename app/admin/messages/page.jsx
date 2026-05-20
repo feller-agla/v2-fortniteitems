@@ -20,7 +20,7 @@ export default function AdminMessages() {
   const searchParams = useSearchParams();
   const urlOrderId = searchParams.get('orderId');
   
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState(urlOrderId || null);
   const [showMobileChat, setShowMobileChat] = useState(!!urlOrderId);
@@ -39,6 +39,7 @@ export default function AdminMessages() {
 
   // Fetch unique orders that have messages via the secure admin API
   const fetchConversations = async (silent = false) => {
+    if (!user || profile?.role !== 'admin') return;
     if (!silent) setFetchingConvs(true);
     try {
       const authHeaders = await getAuthHeaders();
@@ -59,10 +60,12 @@ export default function AdminMessages() {
   };
 
   useEffect(() => { 
-    fetchConversations();
-    const poll = setInterval(() => fetchConversations(true), 15000); // Silent refresh conversations list
-    return () => clearInterval(poll);
-  }, []);
+    if (user && profile?.role === 'admin') {
+      fetchConversations();
+      const poll = setInterval(() => fetchConversations(true), 15000); // Silent refresh conversations list
+      return () => clearInterval(poll);
+    }
+  }, [user, profile]);
 
   // Sync mobile view with urlOrderId if it changes
   useEffect(() => {
@@ -74,7 +77,7 @@ export default function AdminMessages() {
 
   // Fetch messages for selected order
   useEffect(() => {
-    if (!selectedOrderId) return;
+    if (!selectedOrderId || !user || profile?.role !== 'admin') return;
     
     const fetchMessages = async () => {
       try {
@@ -112,7 +115,7 @@ export default function AdminMessages() {
       clearInterval(poll);
       supabase.removeChannel(channel);
     };
-  }, [selectedOrderId]);
+  }, [selectedOrderId, user, profile]);
 
   const handleSelectOrder = (id) => {
     setSelectedOrderId(id);

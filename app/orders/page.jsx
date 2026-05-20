@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import Navbar from "../components/Navbar";
 import ChatWidget from "../components/ChatWidget";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "@/app/lib/supabase";
+import { supabase, getAuthHeaders } from "@/app/lib/supabase";
 import { formatLocaleDate, formatLocaleDateTime } from "@/app/lib/datetime";
 import { getCustomerSearchBlob } from "@/app/lib/customer-display";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -47,17 +47,22 @@ function OrdersPageContent() {
       setError("");
       
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .contains('customer_data', { id: user.id })
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('[DEBUG] Supabase Fetch Error Detail (Orders):');
-          console.dir(error);
-          throw error;
+        const authHeaders = await getAuthHeaders();
+        if (!authHeaders?.Authorization) {
+          setIsLoading(false);
+          return;
         }
+        
+        const res = await fetch("/api/orders/user", {
+          headers: authHeaders,
+          cache: "no-store",
+        });
+        
+        if (!res.ok) {
+          throw new Error("Erreur de récupération");
+        }
+        
+        const data = await res.json();
         
         setOrders(data || []);
         setFilteredOrders(data || []);

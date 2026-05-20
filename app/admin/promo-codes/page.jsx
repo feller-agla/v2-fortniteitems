@@ -2,8 +2,10 @@
 import { useState, useEffect } from "react";
 import { TagIcon, PlusIcon, TrashIcon, CheckCircleIcon, XCircleIcon, UserIcon } from "@heroicons/react/24/outline";
 import { getAuthHeaders } from "../../lib/supabase";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PromoCodesPage() {
+  const { user, profile } = useAuth();
   const [codes, setCodes] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,11 +15,14 @@ export default function PromoCodesPage() {
   const [selectedPartnerId, setSelectedPartnerId] = useState("");
 
   useEffect(() => {
-    fetchCodes();
-    fetchUsers();
-  }, []);
+    if (user && profile?.role === 'admin') {
+      fetchCodes();
+      fetchUsers();
+    }
+  }, [user, profile]);
 
   const fetchCodes = async () => {
+    if (!user || profile?.role !== 'admin') return;
     try {
       setLoading(true);
       const res = await fetch("/api/admin/promo");
@@ -32,6 +37,7 @@ export default function PromoCodesPage() {
   };
 
   const fetchUsers = async () => {
+    if (!user || profile?.role !== 'admin') return;
     try {
       const headers = await getAuthHeaders();
       const res = await fetch("/api/admin/users", { headers });

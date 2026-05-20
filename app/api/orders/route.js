@@ -40,17 +40,35 @@ async function loadPaymentLinks() {
  * Verify JWT via Supabase auth.getUser() — returns userId or null.
  */
 async function getVerifiedUserId(request) {
-  const auth = request.headers.get('Authorization');
-  if (!auth?.startsWith('Bearer ')) return null;
+  const auth = request.headers.get('Authorization') || request.headers.get('authorization');
+  if (!auth) {
+    console.warn('[getVerifiedUserId] Missing Authorization header');
+    return null;
+  }
+  if (!auth.startsWith('Bearer ')) {
+    console.warn('[getVerifiedUserId] Authorization header does not start with Bearer');
+    return null;
+  }
   const token = auth.slice(7).trim();
-  if (!token) return null;
+  if (!token) {
+    console.warn('[getVerifiedUserId] Empty token in Authorization header');
+    return null;
+  }
 
   try {
     const admin = supabaseAdmin();
     const { data: { user }, error } = await admin.auth.getUser(token);
-    if (error || !user) return null;
+    if (error) {
+      console.error('[getVerifiedUserId] admin.auth.getUser error:', error);
+      return null;
+    }
+    if (!user) {
+      console.warn('[getVerifiedUserId] No user returned by admin.auth.getUser');
+      return null;
+    }
     return user.id;
-  } catch {
+  } catch (err) {
+    console.error('[getVerifiedUserId] Exception caught during validation:', err);
     return null;
   }
 }
@@ -82,7 +100,11 @@ export async function POST(request) {
 
     // Find the Monniz payment link from Supabase
     const allLinks = await loadPaymentLinks();
-    const paymentLink = allLinks[String(totalVBucks)] || null;
+    let paymentLink = allLinks[String(totalVBucks)] || null;
+
+    if (!paymentLink && items[0]?.href) {
+      paymentLink = items[0].href;
+    }
 
     if (!paymentLink) {
       return NextResponse.json({
@@ -103,11 +125,27 @@ export async function POST(request) {
       items_data: items,
       lygos_link: paymentLink, // Monniz payment link (column kept for compatibility)
       user_id: customer?.id || null,
+      created_at: new Date().toISOString(),
     }]);
 
     if (dbError) {
       console.error('Supabase Error:', dbError);
       return NextResponse.json({ success: false, error: 'Erreur sauvegarde BDD' }, { status: 500 });
+    }
+
+    // Créer automatiquement le premier message de bienvenue/suivi pour initialiser la messagerie
+    try {
+      const systemAdminId = '00000000-0000-0000-0000-000000000000'; // ID système
+      await admin.from('messages').insert([{
+        order_id: orderId,
+        sender_id: systemAdminId,
+        content: `Bonjour ${customer?.firstName || ''} ! Votre commande a bien été enregistrée et est en attente de paiement. Dès validation, nous procéderons à la livraison. Vous pouvez suivre son état sur cette page et nous écrire ici pour toute question !`,
+        sender_type: 'admin',
+        is_admin_sender: true,
+        created_at: new Date().toISOString(),
+      }]);
+    } catch (msgErr) {
+      console.warn('[API orders POST] Could not insert welcome message:', msgErr);
     }
 
     // Si l'utilisateur est connecté et a utilisé un code parrainage,

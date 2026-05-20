@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatLocaleDate } from "@/app/lib/datetime";
 import { getCustomerDisplayName } from "@/app/lib/customer-display";
 import { getAuthHeaders } from "@/app/lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import { 
   CurrencyDollarIcon, 
@@ -30,7 +31,33 @@ function orderStatusUi(status) {
   }
 }
 
+function getPartnerGainForItem(item) {
+  const vbucks = Number(item.vbucks) || 0;
+  const lamasPrice = Number(item.price) || 0;
+  const quantity = Number(item.quantity) || 1;
+
+  let percentage = 0.05; // Palier 1 : 5%
+  if (vbucks >= 1000 && vbucks <= 1499) {
+    percentage = 0.07; // Palier 2 : 7%
+  } else if (vbucks >= 1500) {
+    percentage = 0.10; // Palier 3 : 10%
+  }
+
+  return lamasPrice * percentage * quantity;
+}
+
+function calculateOrderEarnings(order) {
+  const items = order.items_data || [];
+  let totalEarnings = 0;
+  for (const item of items) {
+    totalEarnings += getPartnerGainForItem(item);
+  }
+  return Math.round(totalEarnings);
+}
+
+
 export default function AdminDashboard() {
+  const { user, profile } = useAuth();
   const [stats, setStats] = useState([
     { name: "REVENUS DU MOIS", value: "---", icon: CurrencyDollarIcon, color: "text-fortnite-yellow", bg: "bg-fortnite-yellow/10", border: "border-fortnite-yellow/50" },
     { name: "COMMANDES ACTIVES", value: "---", icon: ShoppingBagIcon, color: "text-rarity-rare", bg: "bg-rarity-rare/10", border: "border-rarity-rare/50" },
@@ -43,6 +70,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user || profile?.role !== 'admin') {
+        return;
+      }
       try {
         // Fetch Stats
         const statsRes = await fetch('/api/admin/stats');
@@ -64,6 +94,10 @@ export default function AdminDashboard() {
         if (Array.isArray(ordersData)) {
           setRecentOrders(ordersData.slice(0, 5).map((o) => {
             const { label, cls } = orderStatusUi(o.status);
+            const promoCode = o.customer_data?.promoCode || null;
+            const sonGain = promoCode ? calculateOrderEarnings(o) : 0;
+            const monGain = promoCode ? Math.max(0, Number(o.amount) - sonGain) : Number(o.amount);
+
             return {
               rowKey: o.id,
               id: `#${o.id.slice(0, 8)}`,
@@ -73,6 +107,9 @@ export default function AdminDashboard() {
               statusLabel: label,
               statusCls: cls,
               date: formatLocaleDate(o.created_at),
+              promoCode,
+              sonGain,
+              monGain,
             };
           }));
         }
@@ -84,7 +121,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [user, profile]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -156,7 +193,19 @@ export default function AdminDashboard() {
                         <div className="text-[10px] text-gray-500 font-normal">{order.customerEmail}</div>
                       ) : null}
                     </td>
-                    <td className="p-4 text-fortnite-yellow">{order.amount}</td>
+                    <td className="p-4 text-fortnite-yellow">
+                      <div>{order.amount}</div>
+                      {order.promoCode && (
+                        <div className="text-[10px] text-gray-400 font-normal mt-1 flex flex-col gap-1">
+                          <span className="inline-block text-[9px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-wider px-1.5 py-0.5 rounded w-fit">
+                            Code: {order.promoCode}
+                          </span>
+                          <span className="inline-block bg-[#020813] text-gray-300 font-bold px-2 py-0.5 rounded border border-white/5 w-fit">
+                            Moi: <span className="text-rarity-uncommon font-extrabold">{order.monGain.toLocaleString("fr-FR")} FCFA</span> | Partenaire: <span className="text-fortnite-yellow font-extrabold">{order.sonGain.toLocaleString("fr-FR")} FCFA</span>
+                          </span>
+                        </div>
+                      )}
+                    </td>
                     <td className="p-4">
                       <span className={`px-3 py-1 rounded text-[10px] tracking-widest uppercase border ${order.statusCls}`}>
                         {order.statusLabel}

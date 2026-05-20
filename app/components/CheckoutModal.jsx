@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
-import { getOfficialPrice, getLamaShopPrice } from "../lib/prices";
+import { getOfficialPrice } from "../lib/prices";
 import { useCreatorCode } from "../context/CreatorCodeContext";
 
 const DEVICES = ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"];
@@ -34,8 +34,8 @@ export default function CheckoutModal({ product, onClose }) {
   // Calcul du prix :
   // - Prix officiel Fortnite (tarif sans code)
   // - Prix LamaShop (tarif avec code créateur) → calculé depuis getLamaShopPrice, PAS un % dynamique
-  const officialPrice = getOfficialPrice(product.vbucks);
-  const lamaShopPrice = getLamaShopPrice(product.vbucks);
+  const officialPrice = product.vbucks ? getOfficialPrice(product.vbucks) : (product.originalPrice || product.price || 0);
+  const lamaShopPrice = product.price || 0;
   const isDiscounted = promoStatus === "valid";
   const discountedPrice = isDiscounted ? lamaShopPrice : officialPrice;
 
@@ -97,6 +97,7 @@ export default function CheckoutModal({ product, onClose }) {
             image: product.image,
             type: product.type || "vbucks_pack",
             quantity: 1,
+            href: product.href,
           }],
           customer: {
             id: user?.id || null,

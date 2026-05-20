@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from "../../context/AuthContext";
 
 export default function PaymentLinksAdmin() {
+  const { user, profile } = useAuth();
   const [links, setLinks] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -12,10 +14,13 @@ export default function PaymentLinksAdmin() {
 
   // Load payment links
   useEffect(() => {
-    fetchLinks();
-  }, []);
+    if (user && profile?.role === 'admin') {
+      fetchLinks();
+    }
+  }, [user, profile]);
 
   const fetchLinks = async () => {
+    if (!user || profile?.role !== 'admin') return;
     try {
       setLoading(true);
       const res = await fetch('/api/admin/payment-links');

@@ -80,16 +80,23 @@ function UserMessagesContent() {
     if (!silent) setFetchingOrders(true);
     
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .filter('customer_data->>id', 'eq', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('[MESSAGES] Supabase Error Detail:', error.message, error.details, error.hint);
-        throw error;
+      const authHeaders = await getAuthHeaders();
+      if (!authHeaders?.Authorization) {
+        setFetchingOrders(false);
+        return;
       }
+      
+      const res = await fetch("/api/orders/user", {
+        headers: authHeaders,
+        cache: "no-store"
+      });
+      
+      if (!res.ok) {
+        throw new Error("Erreur de récupération des commandes");
+      }
+      
+      const data = await res.json();
+      
       setOrders(data || []);
       lastFetchedUserId.current = user.id;
       

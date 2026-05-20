@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 export function ProductCard({ 
   name, 
   price, 
+  originalPrice,
+  isDiscounted,
   image, 
   badge, 
   isPopular,
@@ -56,7 +58,12 @@ export function ProductCard({
         </div>
         
         {/* Price area - reduced text size slightly for mobile */}
-        <div className="bg-black/60 p-3 sm:p-4 text-center flex flex-col items-center justify-center border-t-2 border-[#1A3E7A] relative z-10 shadow-[inset_0_5px_15px_rgba(0,0,0,0.5)]">
+        <div className="bg-black/60 p-3 sm:p-4 text-center flex flex-col items-center justify-center border-t-2 border-[#1A3E7A] relative z-10 shadow-[inset_0_5px_15px_rgba(0,0,0,0.5)] gap-1">
+          {isDiscounted && originalPrice && originalPrice > price && (
+            <span className="text-[10px] sm:text-xs text-rarity-marvel font-bold line-through opacity-70">
+              {originalPrice.toLocaleString('fr-FR')} FCFA
+            </span>
+          )}
           <p className="text-2xl sm:text-3xl font-display font-normal text-fortnite-yellow leading-none flex items-center justify-center gap-2 text-3d-yellow">
             {price.toLocaleString('fr-FR')} <span className="text-lg sm:text-xl">FCFA</span>
           </p>

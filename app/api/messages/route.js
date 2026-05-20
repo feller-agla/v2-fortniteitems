@@ -8,17 +8,35 @@ import { supabaseAdmin } from '@/app/lib/supabase';
  * This actually validates the token signature server-side (not just decode).
  */
 async function getVerifiedUserId(request) {
-  const auth = request.headers.get('Authorization');
-  if (!auth?.startsWith('Bearer ')) return null;
+  const auth = request.headers.get('Authorization') || request.headers.get('authorization');
+  if (!auth) {
+    console.warn('[getVerifiedUserId] Missing Authorization header');
+    return null;
+  }
+  if (!auth.startsWith('Bearer ')) {
+    console.warn('[getVerifiedUserId] Authorization header does not start with Bearer');
+    return null;
+  }
   const token = auth.slice(7).trim();
-  if (!token) return null;
+  if (!token) {
+    console.warn('[getVerifiedUserId] Empty token in Authorization header');
+    return null;
+  }
 
   try {
     const admin = supabaseAdmin();
     const { data: { user }, error } = await admin.auth.getUser(token);
-    if (error || !user) return null;
+    if (error) {
+      console.error('[getVerifiedUserId] admin.auth.getUser error:', error);
+      return null;
+    }
+    if (!user) {
+      console.warn('[getVerifiedUserId] No user returned by admin.auth.getUser');
+      return null;
+    }
     return user.id;
-  } catch {
+  } catch (err) {
+    console.error('[getVerifiedUserId] Exception caught during validation:', err);
     return null;
   }
 }
@@ -34,15 +52,15 @@ async function isAdmin(adminClient, userId) {
   return data?.role === 'admin';
 }
 
-/** Check if order belongs to user (customer_data.id) or user is admin. */
+/** Check if order belongs to user or user is admin. */
 async function canAccessOrder(adminClient, orderId, userId) {
   const { data: order, error } = await adminClient
     .from('orders')
-    .select('customer_data')
+    .select('customer_data, user_id')
     .eq('id', orderId)
     .maybeSingle();
   if (error || !order) return false;
-  const customerId = order.customer_data?.id ?? order.customer_data?.user_id;
+  const customerId = order.user_id ?? order.customer_data?.id ?? order.customer_data?.user_id;
   if (customerId === userId) return true;
   return await isAdmin(adminClient, userId);
 }

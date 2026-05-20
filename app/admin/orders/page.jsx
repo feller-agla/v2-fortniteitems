@@ -3,9 +3,35 @@ import { useState, useEffect, Fragment } from "react";
 import { formatLocaleDate } from "@/app/lib/datetime";
 import { getCustomerDisplayName } from "@/app/lib/customer-display";
 import { getAuthHeaders } from "@/app/lib/supabase";
+import { useAuth } from "../../context/AuthContext";
 import { CheckCircleIcon, XMarkIcon, EyeIcon, ArrowPathIcon, ChevronDownIcon, ChevronUpIcon, ShoppingBagIcon, UserIcon, TrashIcon } from "@heroicons/react/24/outline";
 
+function getPartnerGainForItem(item) {
+  const vbucks = Number(item.vbucks) || 0;
+  const lamasPrice = Number(item.price) || 0;
+  const quantity = Number(item.quantity) || 1;
+
+  let percentage = 0.05; // Palier 1 : 5%
+  if (vbucks >= 1000 && vbucks <= 1499) {
+    percentage = 0.07; // Palier 2 : 7%
+  } else if (vbucks >= 1500) {
+    percentage = 0.10; // Palier 3 : 10%
+  }
+
+  return lamasPrice * percentage * quantity;
+}
+
+function calculateOrderEarnings(order) {
+  const items = order.items_data || [];
+  let totalEarnings = 0;
+  for (const item of items) {
+    totalEarnings += getPartnerGainForItem(item);
+  }
+  return Math.round(totalEarnings);
+}
+
 export default function AdminOrders() {
+  const { user, profile } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,6 +39,7 @@ export default function AdminOrders() {
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const fetchOrders = async () => {
+    if (!user || profile?.role !== 'admin') return;
     setLoading(true);
     setError(null);
     try {
@@ -28,7 +55,11 @@ export default function AdminOrders() {
     }
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    if (user && profile?.role === 'admin') {
+      fetchOrders();
+    }
+  }, [user, profile]);
 
   const toggleExpand = (id) => {
     setExpandedOrderId(expandedOrderId === id ? null : id);
@@ -152,7 +183,11 @@ export default function AdminOrders() {
                 {filteredOrders.map((order) => {
                   const { label, cls } = statusLabel(order.status);
                   const isExpanded = expandedOrderId === order.id;
-                  
+
+                  const promoCode = order.customer_data?.promoCode || null;
+                  const sonGain = promoCode ? calculateOrderEarnings(order) : 0;
+                  const monGain = promoCode ? Math.max(0, Number(order.amount) - sonGain) : Number(order.amount);
+
                   return (
                     <Fragment key={order.id}>
                       <tr className={`hover:bg-white/5 transition-colors group cursor-pointer ${isExpanded ? 'bg-white/5' : ''}`} onClick={() => toggleExpand(order.id)}>
@@ -171,7 +206,16 @@ export default function AdminOrders() {
                           </div>
                           <div className="text-[10px] text-gray-500 font-normal">{order.customer_data?.email || "-"}</div>
                         </td>
-                        <td className="p-4 text-fortnite-yellow">{Number(order.amount).toLocaleString("fr-FR")} FCFA</td>
+                        <td className="p-4 text-fortnite-yellow">
+                          <div>{Number(order.amount).toLocaleString("fr-FR")} FCFA</div>
+                          {promoCode && (
+                            <div className="text-[10px] text-gray-400 font-normal mt-1 flex flex-col gap-1">
+                              <span className="inline-block bg-[#020813] text-gray-300 font-bold px-2 py-0.5 rounded border border-white/5 w-fit">
+                                Moi: <span className="text-rarity-uncommon font-extrabold">{monGain.toLocaleString("fr-FR")} FCFA</span> | Part: <span className="text-fortnite-yellow font-extrabold">{sonGain.toLocaleString("fr-FR")} FCFA</span>
+                              </span>
+                            </div>
+                          )}
+                        </td>
                         <td className="p-4">
                           <span className={`px-3 py-1 rounded text-[10px] tracking-widest uppercase border inline-flex items-center justify-center min-w-[100px] ${cls}`}>
                             {label}
@@ -326,6 +370,19 @@ export default function AdminOrders() {
                                     <span className="text-white font-display tracking-widest text-sm">TOTAL PAYÉ</span>
                                     <span className="text-xl text-fortnite-yellow font-display text-3d-yellow">{Number(order.amount).toLocaleString("fr-FR")} FCFA</span>
                                 </div>
+                                {promoCode && (
+                                  <div className="bg-black/60 border border-white/5 p-4 rounded-xl flex flex-col gap-2 mt-3">
+                                    <span className="text-gray-400 font-display tracking-widest text-[10px] uppercase">RÉPARTITION DES GAINS</span>
+                                    <div className="flex justify-between items-center text-xs">
+                                      <span className="text-gray-400">Ma part (Admin) :</span>
+                                      <span className="text-rarity-uncommon font-bold">{monGain.toLocaleString("fr-FR")} FCFA</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
+                                      <span className="text-gray-400">Part du partenaire ({promoCode}) :</span>
+                                      <span className="text-fortnite-yellow font-bold">{sonGain.toLocaleString("fr-FR")} FCFA</span>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>

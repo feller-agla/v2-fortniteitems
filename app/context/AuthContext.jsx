@@ -196,15 +196,22 @@ export function AuthProvider({ children }) {
     supabase.auth.signInWithPassword({ email, password });
 
   const signUp = async (email, password, name) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name },
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-    return { data, error };
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json();
+        return { data: null, error: { message: error || 'Signup failed' } };
+      }
+
+      return { data: await response.json(), error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message } };
+    }
   };
 
   const signOut = async () => {
@@ -216,12 +223,23 @@ export function AuthProvider({ children }) {
   };
 
   const verifyEmailOtp = async (email, token) => {
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'signup'
-    });
-    return { data, error };
+    try {
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: token })
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json();
+        return { data: null, error: { message: error || 'Verification failed' } };
+      }
+
+      const result = await response.json();
+      return { data: result, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message } };
+    }
   };
 
   const isAdmin = profile?.role === 'admin';

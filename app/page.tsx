@@ -5,8 +5,11 @@ import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import { ProductCard } from "./components/ProductCard";
 import CheckoutModal from "./components/CheckoutModal";
+import { useCreatorCode } from "./context/CreatorCodeContext";
+import { getOfficialPrice, getLamaShopPrice } from "./lib/prices";
 
 export default function Home() {
+  const { isDiscounted } = useCreatorCode();
   const [selectedProduct, setSelectedProduct] = useState<Record<string, unknown> | null>(null);
 
   // Liens de paiement Monniz (par montant V-Bucks)
@@ -47,29 +50,53 @@ export default function Home() {
     },
     {
       id: 5,
-      name: "Clube Fortnite",
+      name: "Club Fortnite",
       price: 5000,
+      club: true,
       //vbucks: 1000,
       image: "/assets/crew.png",
       href: "https://monniz.com/p/HqV2FoHA",
     }
   ];
 
+  // Calculer les tarifs dynamiques pour les packs V-Bucks & le Club
+  const mappedProducts = products.map((product) => {
+    if (product.vbucks) {
+      const official = getOfficialPrice(product.vbucks);
+      const discounted = product.price;
+      return {
+        ...product,
+        price: isDiscounted ? discounted : official,
+        originalPrice: official,
+        isDiscounted,
+      };
+    } else {
+      const official = 8000;
+      const discounted = 5000;
+      return {
+        ...product,
+        price: isDiscounted ? discounted : official,
+        originalPrice: official,
+        isDiscounted,
+      };
+    }
+  });
+
   return (
     <main className="min-h-screen bg-[#091C3E] text-white/95 selection:bg-fortnite-yellow/30 font-sans relative overflow-hidden">
-      
+
       {/* Texture globale rayée */}
       <div className="absolute inset-0 pointer-events-none opacity-5 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#FFF_10px,#FFF_20px)] mix-blend-overlay z-0"></div>
 
       <Navbar />
       <Hero />
-      
+
       <section id="products" className="py-20 lg:py-32 relative z-10 w-full overflow-hidden">
         {/* Lueur de section modérée */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-fortnite-blue-light/30 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
 
         <div className="container mx-auto px-4 z-10 relative">
-          
+
           <div className="text-center mb-12 sm:mb-20">
             <h2 className="inline-block py-1.5 px-4 mb-4 sm:mb-6 bg-fortnite-yellow/90 text-[#0c1a3b] font-display text-sm sm:text-base tracking-widest shadow-[0_4px_0_rgba(0,0,0,1)] uppercase -skew-x-6 border-2 border-fortnite-yellow/20">
               ⚡ SÉLECTION V-BUCKS
@@ -83,11 +110,13 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 sm:gap-8 max-w-[1400px] mx-auto">
-            {products.map((product) => (
+            {mappedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 name={product.name}
                 price={product.price}
+                originalPrice={product.originalPrice}
+                isDiscounted={product.isDiscounted}
                 image={product.image}
                 badge={product.badge}
                 isPopular={product.isPopular}
@@ -96,10 +125,10 @@ export default function Home() {
               />
             ))}
           </div>
-          
+
         </div>
       </section>
-      
+
       <Footer />
 
       {/* Modal de checkout */}

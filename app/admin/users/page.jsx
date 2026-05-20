@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { formatLocaleDate } from "@/app/lib/datetime";
+import { useAuth } from "../../context/AuthContext";
 import { 
   UsersIcon, 
   TrashIcon, 
@@ -11,11 +12,13 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function AdminUsers() {
+  const { user, profile } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchUsers = async () => {
+    if (!user || profile?.role !== 'admin') return;
     setLoading(true);
     setError(null);
     try {
@@ -30,7 +33,11 @@ export default function AdminUsers() {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    if (user && profile?.role === 'admin') {
+      fetchUsers();
+    }
+  }, [user, profile]);
 
   const handleRoleChange = async (userId, newRole) => {
     if (!confirm(`Voulez-vous changer le rôle de cet utilisateur en ${newRole} ?`)) return;
