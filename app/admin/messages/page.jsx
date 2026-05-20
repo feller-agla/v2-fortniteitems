@@ -86,7 +86,15 @@ export default function AdminMessages() {
         const res = await fetch(`/api/messages?orderId=${selectedOrderId}`, { headers, cache: 'no-store' });
         if (res.status === 401) return;
         const data = await res.json();
-        if (Array.isArray(data)) setMessages(data);
+        if (Array.isArray(data)) {
+          setMessages((prev) => {
+            const serverIds = new Set(data.map((m) => String(m.id)));
+            const pendingOptimistic = prev.filter(
+              (m) => String(m.id).startsWith('optimistic') && !serverIds.has(String(m.id))
+            );
+            return [...data, ...pendingOptimistic];
+          });
+        }
       } catch (e) {
         console.warn('[admin messages] fetchMessages failed', e);
       }
@@ -105,7 +113,7 @@ export default function AdminMessages() {
       }, (payload) => {
         setMessages((prev) => {
           const next = payload.new;
-          if (!next?.id || prev.some((m) => m.id === next.id)) return prev;
+          if (!next?.id || prev.some((m) => String(m.id) === String(next.id))) return prev;
           return [...prev, next];
         });
       })

@@ -2,6 +2,7 @@ export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase';
+import { notifyClientNewMessage, notifyAdminNewMessage } from '@/app/lib/email-notifications';
 
 /**
  * Verify JWT via Supabase auth.getUser() — returns userId or null.
@@ -139,6 +140,34 @@ export async function POST(request) {
       .single();
 
     if (error) throw error;
+
+    // ── Email notification (fire-and-forget, never blocks the response) ──
+    try {
+      // Fetch order info to get the customer email / name
+      const { data: order } = await admin
+        .from('orders')
+        .select('customer_data, user_id')
+        .eq('id', orderId)
+        .maybeSingle();
+
+      const customerEmail = order?.customer_data?.email || null;
+      const customerName  = order?.customer_data?.firstName
+        ? `${order.customer_data.firstName} ${order.customer_data.lastName || ''}`.trim()
+        : order?.customer_data?.epicUsername || 'Joueur';
+      const messageText = String(text).trim();
+
+      if (isFromAdmin && customerEmail) {
+        // Admin wrote → notify the client
+        notifyClientNewMessage({ customerEmail, customerName, orderId, messageText });
+      } else if (!isFromAdmin) {
+        // Client wrote → notify the admin
+        notifyAdminNewMessage({ customerName, customerEmail: customerEmail || '', orderId, messageText });
+      }
+    } catch (notifErr) {
+      // Non-blocking: never fail the request because of email
+      console.warn('[API messages POST] Email notification error (non-blocking):', notifErr);
+    }
+
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': 'no-store, max-age=0',
