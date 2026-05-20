@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useCreatorCode } from "../context/CreatorCodeContext";
+import { getOfficialPrice } from "../lib/prices";
 
 export function ShopItem({ 
   id, 
@@ -13,8 +15,9 @@ export function ShopItem({
   rarity,
   onBuy
 }) {
-  const isDiscounted = false;
-  const displayPrice = isDiscounted ? price : (full_price || price * 1);
+  const { isDiscounted } = useCreatorCode();
+  const officialPrice = getOfficialPrice(vbucks);
+  const displayPrice = isDiscounted ? price : officialPrice;
 
   // Basic color mapping based on rarity
   const getRarityGradient = () => {
@@ -83,7 +86,7 @@ export function ShopItem({
           <div className="flex flex-col items-center w-full gap-1">
             {isDiscounted && (
               <span className="text-[10px] sm:text-xs text-rarity-marvel font-bold line-through opacity-70">
-                {(full_price || price * 1.5).toLocaleString('fr-FR')} FCFAsss
+                {officialPrice.toLocaleString('fr-FR')} FCFA
               </span>
             )}
             <span className={`text-sm sm:text-lg font-bold font-sans w-full text-center py-1 sm:py-1.5 rounded shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] border transition-all duration-500 ${

@@ -7,7 +7,6 @@ import { supabase } from "@/app/lib/supabase";
 import { formatLocaleDate, formatLocaleDateTime } from "@/app/lib/datetime";
 import { getCustomerSearchBlob } from "@/app/lib/customer-display";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCart } from "@/app/context/CartContext";
 import { 
   ChevronDownIcon, 
   MagnifyingGlassIcon, 
@@ -22,7 +21,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 function OrdersPageContent() {
   const { user, isAuthReady } = useAuth();
-  const { clearCart, isLoaded: isCartLoaded } = useCart();
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -86,12 +84,6 @@ function OrdersPageContent() {
     }
   }, [user?.id, searchParams]);
 
-  // Clear Cart on successful payment redirect
-  useEffect(() => {
-    if (isCartLoaded && searchParams.get('status') === 'success') {
-      clearCart();
-    }
-  }, [searchParams, isCartLoaded]); // Removed clearCart from deps for safety
 
   // Filter orders based on search query
   useEffect(() => {

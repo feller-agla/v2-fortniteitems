@@ -35,6 +35,18 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
     const adminClient = supabaseAdmin();
+
+    // 1. Delete associated messages first to prevent foreign key violations
+    const { error: msgError } = await adminClient
+      .from('messages')
+      .delete()
+      .eq('order_id', id);
+
+    if (msgError) {
+      console.warn('Warning: Could not delete associated messages:', msgError.message);
+    }
+
+    // 2. Delete the order itself
     const { error } = await adminClient
       .from('orders')
       .delete()

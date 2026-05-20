@@ -14,12 +14,22 @@ export default function LoginPage() {
   const { signInWithEmail, signInWithGoogle, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
+  const [redirectTo, setRedirectTo] = useState("/");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const r = params.get("redirect");
+      if (r) setRedirectTo(r);
+    }
+  }, []);
+
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.push("/");
+      router.push(redirectTo);
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, redirectTo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +39,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      router.push("/");
+      router.push(redirectTo);
     }
     setLoading(false);
   };
@@ -128,7 +138,7 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center relative z-10 border-t-2 border-white/5 pt-6">
             <p className="text-gray-400 font-sans font-bold text-sm tracking-wider">VOUS N'AVEZ PAS DE COMPTE ?</p>
-            <Link href="/register" className="mt-3 btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-3 text-lg border-2 border-white/50 backdrop-blur-sm shadow-[0_6px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_0_rgba(200,200,200,1)] block">
+            <Link href={`/register?redirect=${encodeURIComponent(redirectTo)}`} className="mt-3 btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-3 text-lg border-2 border-white/50 backdrop-blur-sm shadow-[0_6px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_0_rgba(200,200,200,1)] block">
               <span className="btn-fortnite-inner leading-none mt-1 font-bold">CRÉER UN COMPTE</span>
             </Link>
           </div>

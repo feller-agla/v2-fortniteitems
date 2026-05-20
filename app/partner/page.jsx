@@ -143,7 +143,7 @@ export default function PartnerDashboard() {
                 <tr>
                   <th className="p-4">Code</th>
                   <th className="p-4">Statut</th>
-                  <th className="p-4">Réduction</th>
+                  <th className="p-4">Commission</th>
                   <th className="p-4">Utilisations</th>
                   <th className="p-4">Revenus</th>
                 </tr>
@@ -163,7 +163,13 @@ export default function PartnerDashboard() {
                         {code.is_active ? "ACTIF" : "INACTIF"}
                       </span>
                     </td>
-                    <td className="p-4 text-fortnite-yellow font-bold">{code.discount_percentage || 0}%</td>
+                    <td className="p-4">
+                      <div className="text-[10px] font-bold text-fortnite-yellow space-y-0.5">
+                        <p>≤ 1000 VB → <span className="text-white">5%</span></p>
+                        <p>1000–1499 VB → <span className="text-white">7%</span></p>
+                        <p>1500+ VB → <span className="text-white">10%</span></p>
+                      </div>
+                    </td>
                     <td className="p-4">
                       <span className="text-white font-display text-lg">{code.uses}</span>
                     </td>

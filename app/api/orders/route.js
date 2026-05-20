@@ -102,11 +102,36 @@ export async function POST(request) {
       customer_data: customer || {},
       items_data: items,
       lygos_link: paymentLink, // Monniz payment link (column kept for compatibility)
+      user_id: customer?.id || null,
     }]);
 
     if (dbError) {
       console.error('Supabase Error:', dbError);
       return NextResponse.json({ success: false, error: 'Erreur sauvegarde BDD' }, { status: 500 });
+    }
+
+    // Si l'utilisateur est connecté et a utilisé un code parrainage,
+    // on l'enregistre directement sur son profil pour un accès rapide
+    if (customer?.id && customer?.promoCode) {
+      try {
+        // Retrouver l'UUID du partenaire propriétaire du code
+        const { data: promoData } = await admin
+          .from('promo_codes')
+          .select('partner_user_id')
+          .eq('code', customer.promoCode.toUpperCase())
+          .maybeSingle();
+
+        await admin
+          .from('profiles')
+          .update({
+            used_promo_code: customer.promoCode.toUpperCase(),
+            promo_code_owner_id: promoData?.partner_user_id || null,
+          })
+          .eq('id', customer.id);
+      } catch (profileUpdateErr) {
+        // Non-blocking: ne pas bloquer la commande si la mise à jour du profil échoue
+        console.warn('Could not update profile promo code:', profileUpdateErr);
+      }
     }
 
     return NextResponse.json({

@@ -10,7 +10,6 @@ export default function PromoCodesPage() {
   const [error, setError] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [newCode, setNewCode] = useState("");
-  const [newDiscount, setNewDiscount] = useState(0);
   const [selectedPartnerId, setSelectedPartnerId] = useState("");
 
   useEffect(() => {
@@ -56,7 +55,6 @@ export default function PromoCodesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: newCode,
-          discount_percentage: newDiscount,
           partner_user_id: selectedPartnerId || null,
         }),
       });
@@ -65,7 +63,6 @@ export default function PromoCodesPage() {
         throw new Error(data.error || "Erreur de création");
       }
       setNewCode("");
-      setNewDiscount(0);
       setSelectedPartnerId("");
       fetchCodes();
     } catch (err) {
@@ -141,17 +138,18 @@ export default function PromoCodesPage() {
                   placeholder="EX: PARTENAIRE"
                 />
               </div>
-              <div>
-                <label className="block text-[10px] font-black text-[#B0B8C8] uppercase tracking-widest mb-2">RÉDUCTION (%)</label>
-                <input 
-                  type="number" 
-                  min="0"
-                  max="100"
-                  value={newDiscount} 
-                  onChange={(e) => setNewDiscount(Number(e.target.value))} 
-                  className="w-full bg-black/40 border-2 border-white/10 rounded-xl px-4 py-3 text-white font-bold tracking-widest focus:outline-none focus:border-fortnite-yellow transition-all"
-                  placeholder="0"
-                />
+              <div className="bg-black/40 border border-fortnite-yellow/20 rounded-xl p-3">
+                <p className="text-[10px] font-black text-fortnite-yellow uppercase tracking-widest mb-1.5">💡 ALGO DE RÉDUCTION</p>
+                <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                  Les prix LamaShop sont <span className="text-white font-bold">fixes par palier</span>, pas un % du prix Fortnite.
+                  Utiliser un code créateur donne accès au <span className="text-fortnite-yellow font-bold">tarif LamaShop</span> directement.
+                </p>
+                <div className="mt-2 space-y-0.5 text-[9px] font-bold text-gray-500 uppercase tracking-wider">
+                  <p>≤ 1000 V-Bucks → <span className="text-fortnite-yellow">×5 FCFA</span></p>
+                  <p>1001–1500 V-Bucks → <span className="text-fortnite-yellow">×4.6 FCFA</span></p>
+                  <p>1501–2000 V-Bucks → <span className="text-fortnite-yellow">×4.25 FCFA</span></p>
+                  <p>2001+ V-Bucks → <span className="text-fortnite-yellow">×4 FCFA</span></p>
+                </div>
               </div>
               <div>
                 <label className="block text-[10px] font-black text-[#B0B8C8] uppercase tracking-widest mb-2">
@@ -224,7 +222,7 @@ export default function PromoCodesPage() {
                             <span className="font-display text-lg text-white tracking-widest uppercase">{code.code}</span>
                           </td>
                           <td className="px-4 py-4 text-fortnite-yellow font-bold text-sm">
-                            {code.discount_percentage || 0}%
+                            Tarif LamaShop
                           </td>
                           <td className="px-4 py-4">
                             {partner ? (

@@ -98,10 +98,6 @@ export default function AdminLayout({ children }) {
             <HomeIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
             <span className="font-bold text-sm tracking-widest">DASHBOARD</span>
           </Link>
-          <Link href="/admin/products" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
-            <ShoppingBagIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
-            <span className="font-bold text-sm tracking-widest">PRODUITS</span>
-          </Link>
           <Link href="/admin/orders" className="flex items-center gap-3 p-3 text-white hover:bg-white/10 rounded-xl transition-colors whitespace-nowrap group">
             <InboxIcon className="w-6 h-6 text-gray-400 group-hover:text-fortnite-yellow" />
             <span className="font-bold text-sm tracking-widest">COMMANDES</span>

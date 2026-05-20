@@ -33,6 +33,33 @@ async function getUserRole(adminClient, userId) {
   return data?.role || 'user';
 }
 
+function getPartnerGainForItem(item) {
+  const vbucks = Number(item.vbucks) || 0;
+  const lamasPrice = Number(item.price) || 0;
+  const quantity = Number(item.quantity) || 1;
+
+  let percentage = 0.05; // Palier 1 : 0 - 999 V-Bucks -> 5%
+  if (vbucks >= 1000 && vbucks <= 1499) {
+    percentage = 0.07; // Palier 2 : 1000 - 1499 V-Bucks -> 7%
+  } else if (vbucks >= 1500) {
+    percentage = 0.10; // Palier 3 : 1500+ V-Bucks -> 10%
+  }
+
+  return lamasPrice * percentage * quantity;
+}
+
+function calculateOrderEarnings(order) {
+  // Les gains ne sont comptabilisés que si la commande est validée (status === 'delivered')
+  if (order.status !== 'delivered') return 0;
+
+  const items = order.items_data || [];
+  let totalEarnings = 0;
+  for (const item of items) {
+    totalEarnings += getPartnerGainForItem(item);
+  }
+  return Math.round(totalEarnings);
+}
+
 export async function GET(request) {
   try {
     // 1. Vérifier l'authentification
@@ -93,7 +120,7 @@ export async function GET(request) {
       return {
         ...code,
         uses: ordersForCode.length,
-        revenue: ordersForCode.reduce((sum, o) => sum + (Number(o.amount) || 0), 0),
+        revenue: ordersForCode.reduce((sum, o) => sum + calculateOrderEarnings(o), 0),
       };
     });
 

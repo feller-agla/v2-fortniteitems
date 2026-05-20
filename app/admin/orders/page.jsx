@@ -161,7 +161,14 @@ export default function AdminOrders() {
                         </td>
                         <td className="p-4 text-white font-display tracking-wider text-xs">{order.id?.slice(0, 8)}...</td>
                         <td className="p-4">
-                          <div className="text-white group-hover:text-fortnite-yellow transition-colors font-sans">{getCustomerDisplayName(order.customer_data)}</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-white group-hover:text-fortnite-yellow transition-colors font-sans">{getCustomerDisplayName(order.customer_data)}</div>
+                            {order.customer_data?.promoCode && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-wider">
+                                {order.customer_data.promoCode}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-[10px] text-gray-500 font-normal">{order.customer_data?.email || "-"}</div>
                         </td>
                         <td className="p-4 text-fortnite-yellow">{Number(order.amount).toLocaleString("fr-FR")} FCFA</td>
@@ -262,6 +269,18 @@ export default function AdminOrders() {
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">ID Order</p>
                                     <p className="text-[10px] text-gray-400 break-all">{order.id}</p>
                                   </div>
+                                  {order.customer_data?.promoCode && (
+                                    <div className="bg-green-500/10 p-3 rounded-xl border border-green-500/20 col-span-2 flex justify-between items-center">
+                                      <div>
+                                        <p className="text-[10px] text-green-400 uppercase tracking-widest mb-0.5">Code Créateur Utilisé</p>
+                                        <p className="text-white font-display tracking-widest text-base">{order.customer_data.promoCode}</p>
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-[10px] text-green-400 uppercase tracking-widest mb-0.5">Réduction</p>
+                                        <p className="text-white font-bold text-base">-{order.customer_data.promoDiscount || 20}%</p>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex gap-2 flex-wrap">
                                     <a

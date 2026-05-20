@@ -122,10 +122,10 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         
         {/* Recent Orders List */}
-        <div className="lg:col-span-2 bg-[#051024] rounded-2xl border-2 border-[#1A3E7A] shadow-[0_15px_30px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div className="bg-[#051024] rounded-2xl border-2 border-[#1A3E7A] shadow-[0_15px_30px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="p-6 border-b-2 border-white/5 flex justify-between items-center bg-black/40">
             <h2 className="text-2xl font-display tracking-widest text-white text-3d">COMMANDES RÉCENTES</h2>
             <Link
@@ -169,31 +169,6 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
-
-        {/* Quick Actions */}
-        <div className="bg-[#051024] rounded-2xl border-2 border-[#1A3E7A] shadow-[0_15px_30px_rgba(0,0,0,0.6)] overflow-hidden">
-          <div className="p-6 border-b-2 border-white/5 bg-black/40">
-            <h2 className="text-2xl font-display tracking-widest text-white text-3d">ACTIONS RAPIDES</h2>
-          </div>
-          <div className="p-6 space-y-4">
-            <button className="btn-fortnite bg-fortnite-yellow hover:bg-fortnite-yellow-hover text-fortnite-blue w-full py-4 text-sm shadow-[0_4px_0_rgba(180,160,0,1)] hover:shadow-[0_2px_0_rgba(180,160,0,1)] transition-all">
-              <span className="btn-fortnite-inner font-bold flex items-center justify-center gap-2">
-                AJOUTER UN PRODUIT
-              </span>
-            </button>
-            <button className="btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-4 text-sm border-2 border-white/20 hover:border-white transition-all shadow-[0_4px_0_rgba(255,255,255,0.2)] hover:shadow-[0_2px_0_rgba(255,255,255,1)]">
-              <span className="btn-fortnite-inner font-bold">
-                METTRE À JOUR LA BOUTIQUE
-              </span>
-            </button>
-            <button className="btn-fortnite bg-white/10 hover:bg-white text-white hover:text-fortnite-blue w-full py-4 text-sm border-2 border-white/20 hover:border-white transition-all shadow-[0_4px_0_rgba(255,255,255,0.2)] hover:shadow-[0_2px_0_rgba(255,255,255,1)]">
-              <span className="btn-fortnite-inner font-bold">
-                EXPORTER LES COMMANDES
-              </span>
-            </button>
-          </div>
-        </div>
-
       </div>
     </div>
   );

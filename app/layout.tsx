@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { CartProvider } from "./context/CartContext";
+import { CreatorCodeProvider } from "./context/CreatorCodeContext";
 import { AuthProvider } from "./context/AuthContext";
 
 export const metadata: Metadata = {
@@ -22,9 +22,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-fortnite-blue text-white overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
-          <CartProvider>
+          <CreatorCodeProvider>
             {children}
-          </CartProvider>
+          </CreatorCodeProvider>
         </AuthProvider>
       </body>
     </html>

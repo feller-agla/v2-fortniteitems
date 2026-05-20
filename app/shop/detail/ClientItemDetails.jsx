@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCreatorCode } from '../../context/CreatorCodeContext';
+import { getOfficialPrice } from '../../lib/prices';
 
 export default function ClientItemDetails({ item }) {
   const [paymentUrl, setPaymentUrl] = useState('');
   const [loading, setLoading] = useState(true);
+  const { isDiscounted } = useCreatorCode();
+  const officialPrice = getOfficialPrice(item.vbucks);
+  const displayPrice = isDiscounted ? item.price : officialPrice;
 
   // Load payment link dynamically
   useEffect(() => {
@@ -54,18 +59,45 @@ export default function ClientItemDetails({ item }) {
   }
 
   const [activeItem, setActiveItem] = useState(allItems[0]);
+  const [activeTab, setActiveTab] = useState('image'); // 'image' | 'video'
 
   const mainImageUrl = activeItem.image || activeItem.images?.icon || activeItem.images?.smallIcon || activeItem.images?.featured || '/assets/icon.png';
   
   // Extract video if available
   let videoUrl = null;
   if (activeItem.showcaseVideo) {
-    videoUrl = `https://www.youtube.com/watch?v=${activeItem.showcaseVideo}`;
+    videoUrl = activeItem.showcaseVideo;
   } else if (activeItem.video) {
     videoUrl = activeItem.video;
   } else if (item.showcaseVideo) {
-    videoUrl = `https://www.youtube.com/watch?v=${item.showcaseVideo}`;
+    videoUrl = item.showcaseVideo;
   }
+
+  // Parse YouTube video ID and build secure embed URL
+  function getYouTubeEmbedUrl(urlOrId) {
+    if (!urlOrId) return null;
+    const cleanStr = urlOrId.trim();
+    // 11-char ID
+    if (/^[a-zA-Z0-9_-]{11}$/.test(cleanStr)) {
+      return `https://www.youtube.com/embed/${cleanStr}?autoplay=1&mute=1&rel=0`;
+    }
+    // full URL
+    const watchRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = cleanStr.match(watchRegex);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&rel=0`;
+    }
+    return null;
+  }
+
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
+
+  // Reset tab to 'image' if active item doesn't have a valid video
+  useEffect(() => {
+    if (!youtubeEmbedUrl) {
+      setActiveTab('image');
+    }
+  }, [activeItem, youtubeEmbedUrl]);
 
   return (
     <div className="container mx-auto px-4 w-full max-w-6xl relative z-10">
@@ -76,29 +108,55 @@ export default function ClientItemDetails({ item }) {
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* Visual section */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 relative">
-          <div className="relative w-full h-auto flex justify-center items-center mb-6">
+        <div className="w-full lg:w-1/2 flex flex-col items-stretch justify-start p-4 relative">
+          {youtubeEmbedUrl && (
+            <div className="flex gap-2 mb-6 bg-black/40 p-1.5 rounded-xl border border-white/10 relative z-20">
+              <button
+                type="button"
+                onClick={() => setActiveTab('image')}
+                className={`flex-1 py-2.5 px-4 rounded-lg font-display text-sm tracking-wider uppercase transition-all duration-300 ${
+                  activeTab === 'image'
+                    ? 'bg-fortnite-yellow text-[#091C3E] font-bold shadow-[0_2px_10px_rgba(255,241,43,0.3)]'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                📷 Image
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('video')}
+                className={`flex-1 py-2.5 px-4 rounded-lg font-display text-sm tracking-wider uppercase transition-all duration-300 ${
+                  activeTab === 'video'
+                    ? 'bg-fortnite-yellow text-[#091C3E] font-bold shadow-[0_2px_10px_rgba(255,241,43,0.3)]'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                🎥 Vidéo
+              </button>
+            </div>
+          )}
+
+          <div className="relative w-full aspect-square flex justify-center items-center mb-6 bg-[#0c1a3b]/40 rounded-2xl border border-white/10 shadow-[inset_0_2px_15px_rgba(0,0,0,0.6)] overflow-hidden">
             {/* Glow effect based on rarity */}
-            <div className="absolute inset-0 blur-3xl opacity-30 mix-blend-screen rounded-full" 
+            <div className="absolute inset-0 blur-3xl opacity-30 mix-blend-screen rounded-full pointer-events-none" 
                  style={{ backgroundColor: 'var(--color-rarity-epic)' }}></div>
             
-            <img 
-              src={mainImageUrl} 
-              alt={activeItem.name} 
-              className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)]"
-            />
+            {activeTab === 'image' ? (
+              <img 
+                src={mainImageUrl} 
+                alt={activeItem.name} 
+                className="w-[90%] h-[90%] object-contain relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] transition-all duration-500 hover:scale-105"
+              />
+            ) : (
+              <iframe
+                src={youtubeEmbedUrl}
+                title={`Aperçu vidéo de ${activeItem.name}`}
+                className="w-full h-full relative z-10 border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            )}
           </div>
-          
-          {videoUrl && (
-            <Link 
-              href={videoUrl}
-              target="_blank"
-              className="mt-4 px-6 py-3 bg-red-600/90 hover:bg-red-500 text-white font-display uppercase tracking-widest rounded-lg transition-transform hover:-translate-y-1 shadow-[0_4px_15px_rgba(220,38,38,0.4)] flex items-center gap-2"
-            >
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-              Voir l'aperçu vidéo
-            </Link>
-          )}
         </div>
 
         {/* Info section */}
@@ -160,9 +218,14 @@ export default function ClientItemDetails({ item }) {
               <span className="text-4xl font-display text-white tracking-widest">{item.vbucks}</span>
             </div>
 
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-6 flex flex-col gap-1.5">
+              {isDiscounted && (
+                <span className="text-sm font-bold text-rarity-marvel line-through opacity-70">
+                  {officialPrice.toLocaleString('fr-FR')} FCFA
+                </span>
+              )}
               <span className="text-2xl font-bold text-[#FFF12B] uppercase tracking-wide">
-                Prix: {(item.price).toLocaleString('fr-FR')} FCFA
+                Prix: {displayPrice.toLocaleString('fr-FR')} FCFA
               </span>
             </div>
 
@@ -175,7 +238,7 @@ export default function ClientItemDetails({ item }) {
             </Link>
 
             <div className="mt-6 p-4 bg-[rgba(123,104,238,0.1)] border-l-4 border-[#31BBE6] rounded text-sm text-white/80 leading-relaxed">
-              <strong>NB:</strong> Le skin n'est pas reçu immédiatement. Tu devras ajouter un compte en ami, attendre 48h , et le compte t'offrira le skin selon les règles de Fortnite.
+              <strong>NB:</strong> Le skin n&apos;est pas reçu immédiatement. Tu devras ajouter un compte en ami, attendre 48h , et le compte t&apos;offrira le skin selon les règles de Fortnite.
             </div>
           </div>
 

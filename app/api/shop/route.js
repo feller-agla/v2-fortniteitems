@@ -2,8 +2,9 @@ export const runtime = 'edge';
 export const revalidate = 0; // Empêche Next.js de mettre en cache la route elle-même
 
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/app/lib/supabase';
 
-// Variables globales de cache très basiques pour le serveur Next.js
+// Cache niveau 1 (Mémoire volatile locale au worker Edge)
 let shopCache = null;
 let lastUpdate = null;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
@@ -12,13 +13,37 @@ export async function GET() {
   try {
     const now = Date.now();
 
-    // 1. Vérification du cache (TTL = 15 minutes)
+    // 1. Vérification du cache niveau 1 (In-Memory)
     if (shopCache && lastUpdate && (now - lastUpdate < CACHE_TTL_MS)) {
-      console.log("[SHOP API] Retour du cache (Temps restant: %ds)", Math.round((CACHE_TTL_MS - (now - lastUpdate)) / 1000));
+      console.log("[SHOP API] Cache L1 (Mémoire) touché (Temps restant: %ds)", Math.round((CACHE_TTL_MS - (now - lastUpdate)) / 1000));
       return NextResponse.json(shopCache);
     }
+
+    console.log("[SHOP API] Cache L1 manquant ou expiré. Interrogation du cache L2 (Supabase)...");
+    const admin = supabaseAdmin();
     
-    console.log("[SHOP API] Cache expiré ou vide. Récupération des données depuis l'API Fortnite...");
+    try {
+      const { data, error } = await admin
+        .from('shop_cache')
+        .select('data, updated_at')
+        .eq('id', 'daily_shop')
+        .maybeSingle();
+
+      if (data && !error) {
+        const dbLastUpdate = new Date(data.updated_at).getTime();
+        if (now - dbLastUpdate < CACHE_TTL_MS) {
+          console.log("[SHOP API] Cache L2 (Supabase) touché (Temps restant: %ds)", Math.round((CACHE_TTL_MS - (now - dbLastUpdate)) / 1000));
+          // Remplir le cache L1 pour les prochaines requêtes sur cette instance
+          shopCache = data.data;
+          lastUpdate = dbLastUpdate;
+          return NextResponse.json(data.data);
+        }
+      }
+    } catch (dbReadErr) {
+      console.error("[SHOP API] Erreur de lecture du cache L2 (Supabase):", dbReadErr);
+    }
+
+    console.log("[SHOP API] Cache L2 inexistant ou expiré. Récupération des données depuis l'API Fortnite...");
     
     // Fonction de calcul du prix de vente
     const calculateCustomPrice = (vbucks) => {
@@ -197,16 +222,46 @@ export async function GET() {
       data: uniqueItems
     };
 
-    // Mise en cache
+    // Mise en cache L1
     shopCache = result;
     lastUpdate = now;
+
+    // Mise en cache L2 (Supabase) en arrière-plan
+    try {
+      await admin
+        .from('shop_cache')
+        .upsert({
+          id: 'daily_shop',
+          data: result,
+          updated_at: new Date().toISOString()
+        });
+      console.log("[SHOP API] Cache L2 (Supabase) mis à jour.");
+    } catch (dbWriteErr) {
+      console.error("[SHOP API] Erreur d'écriture du cache L2 (Supabase):", dbWriteErr);
+    }
 
     return NextResponse.json(result);
 
   } catch (error) {
     console.error("Shop API Error:", error);
     
-    // Fallback: si l'API est cassée mais qu'on a un cache expiré, renvoyer le cache.
+    // Fallback : si l'API externe échoue, on tente de servir le cache L2 expiré
+    try {
+      const admin = supabaseAdmin();
+      const { data } = await admin
+        .from('shop_cache')
+        .select('data')
+        .eq('id', 'daily_shop')
+        .maybeSingle();
+      if (data?.data) {
+        console.warn("[SHOP API] Service du cache L2 expiré suite à une erreur de l'API Fortnite.");
+        return NextResponse.json({ ...data.data, source: 'cache_supabase_stale', error: error.message });
+      }
+    } catch (dbFallbackErr) {
+      console.error("[SHOP API] Échec du chargement du cache de repli (Supabase):", dbFallbackErr);
+    }
+
+    // Fallback de dernier recours : cache L1
     if (shopCache) {
       return NextResponse.json({ ...shopCache, source: 'cache_nextjs_stale', error: error.message });
     }

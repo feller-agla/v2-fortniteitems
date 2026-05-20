@@ -19,24 +19,48 @@ export async function GET() {
     // 2. Get user metadata from auth schema (requires service role)
     const { data: { users }, error: authError } = await adminClient.auth.admin.listUsers();
     
+    // Fetch orders to determine used promo/partner codes
+    let orders = [];
+    try {
+      const { data: fetchedOrders, error: ordersError } = await adminClient
+        .from('orders')
+        .select('user_id, customer_data, created_at')
+        .order('created_at', { ascending: false });
+      if (!ordersError) {
+        orders = fetchedOrders || [];
+      }
+    } catch (e) {
+      console.warn('Could not fetch orders for promo codes:', e);
+    }
+
     if (authError) {
       console.warn('Auth users list error (might be permissions):', authError);
       // Fallback: return just profiles
-      return NextResponse.json(profiles.map(p => ({
-        ...p,
-        email: '---',
-        last_sign_in_at: null
-      })));
+      return NextResponse.json(profiles.map(p => {
+        const userOrders = orders.filter(o => o.user_id === p.id || o.customer_data?.id === p.id);
+        const orderWithPromo = userOrders.find(o => o.customer_data?.promoCode);
+        return {
+          ...p,
+          email: '---',
+          last_sign_in_at: null,
+          used_promo_code: orderWithPromo ? orderWithPromo.customer_data.promoCode : null
+        };
+      }));
     }
 
     // 3. Merge data
     const mergedUsers = profiles.map(profile => {
       const authUser = users.find(u => u.id === profile.id);
+      
+      const userOrders = orders.filter(o => o.user_id === profile.id || o.customer_data?.id === profile.id);
+      const orderWithPromo = userOrders.find(o => o.customer_data?.promoCode);
+
       return {
         ...profile,
         email: authUser?.email || '---',
         last_sign_in_at: authUser?.last_sign_in_at || null,
-        created_at: profile.created_at || authUser?.created_at
+        created_at: profile.created_at || authUser?.created_at,
+        used_promo_code: orderWithPromo ? orderWithPromo.customer_data.promoCode : null
       };
     });
 

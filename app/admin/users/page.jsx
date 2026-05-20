@@ -97,6 +97,7 @@ export default function AdminUsers() {
                 <tr>
                   <th className="p-4">Utilisateur</th>
                   <th className="p-4">Email</th>
+                  <th className="p-4">Code Partenaire</th>
                   <th className="p-4">Rôle</th>
                   <th className="p-4">Inscription</th>
                   <th className="p-4 text-right">Actions</th>
@@ -118,6 +119,15 @@ export default function AdminUsers() {
                       </div>
                     </td>
                     <td className="p-4 text-gray-400">{u.email}</td>
+                    <td className="p-4">
+                      {u.used_promo_code ? (
+                        <span className="px-2 py-1 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-widest">
+                          {u.used_promo_code}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500">—</span>
+                      )}
+                    </td>
                     <td className="p-4">
                       <span className={`px-2 py-1 rounded text-[10px] tracking-widest uppercase border ${
                         u.role === 'admin' 
